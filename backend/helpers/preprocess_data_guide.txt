@@ -1,0 +1,9 @@
+to run preprocess_data do the following
+
+ted_talks = pd.read_csv("talks_info.csv")
+ted_talks['comments'] = ted_talks['youtube_video_code'].apply(func=get_video_comments)
+ted_talks['comments'] = ted_talks.apply(custom_function, axis=1)
+
+this should (might take a while tho) create the column comments of the form described in the function spec
+note: might not work due to api key (lmk if that happens)
+also: can look at the colab in our google drive titled preprocess_data
