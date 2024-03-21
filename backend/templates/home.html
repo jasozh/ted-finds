@@ -1,15 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <title>{{title}}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+  rel="stylesheet"
+/>
 
 <body>
-    <div>
-        <h1>This is the Home page</h1>
+  <div style="display: flex; height: 100vh">
+    <div
+      style="
+        min-width: 35rem;
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        align-items: center;
+      "
+    >
+      <h1 style="padding: 0; padding-bottom: 1rem; margin: 0; font-size: 4rem">
+        TEDFinds
+      </h1>
+      <input
+        list="titles"
+        placeholder="Search here"
+        style="
+          font-size: 1.2rem;
+          width: 100%;
+          padding-left: 1.5rem;
+          padding-right: 1.5rem;
+          padding-top: 1rem;
+          padding-bottom: 1rem;
+          border: 0;
+          border-radius: 5rem;
+        "
+      />
+      <datalist id="titles">
+        <option style="padding: 5rem" value="Apple"></option>
+        <option value="Orange"></option>
+        <option value="Peach"></option>
+        <option value="Melon"></option>
+        <option value="Strawberry"></option>
+      </datalist>
     </div>
-    <script>
-    </script>
+  </div>
+  <script></script>
 </body>
