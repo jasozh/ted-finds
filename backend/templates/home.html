@@ -1,5 +1,9 @@
 <!DOCTYPE html>
 <title>{{title}}</title>
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
 <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -12,7 +16,7 @@
   <div style="display: flex; height: 100vh">
     <div
       style="
-        min-width: 35rem;
+        min-width: 40rem;
         display: flex;
         flex-direction: column;
         margin: auto;
@@ -20,29 +24,50 @@
       "
     >
       <h1 style="padding: 0; padding-bottom: 1rem; margin: 0; font-size: 4rem">
-        TEDFinds
+        TED Finds
       </h1>
-      <input
-        list="titles"
-        placeholder="Search here"
-        style="
-          font-size: 1.2rem;
-          width: 100%;
-          padding-left: 1.5rem;
-          padding-right: 1.5rem;
-          padding-top: 1rem;
-          padding-bottom: 1rem;
-          border: 0;
-          border-radius: 5rem;
-        "
-      />
-      <datalist id="titles">
-        <option style="padding: 5rem" value="Apple"></option>
-        <option value="Orange"></option>
-        <option value="Peach"></option>
-        <option value="Melon"></option>
-        <option value="Strawberry"></option>
-      </datalist>
+      <form>
+        <div style="margin-bottom: 10rem; position: relative; display: flex; min-width: 40rem">
+          <input
+            placeholder="Search for a TED Talk"
+            style="
+              font-size: 1.2rem;
+              width: 100%;
+              padding-left: 1.5rem;
+              padding-right: 1.5rem;
+              padding-top: 1rem;
+              padding-bottom: 1rem;
+              border: 0;
+              border-radius: 5rem 0 0 5rem;
+            "
+          />
+          <button
+            style="
+              background: white;
+              cursor: pointer;
+              border-radius: 0 5rem 5rem 0;
+              width: 4rem;
+              border: 0;
+            "
+            type="submit"
+          >
+            <i style="font-size: 1.2rem" class="fa fa-search">&nbsp;</i>
+          </button>
+          <div style="position: absolute; margin-top: 3.9rem; width: 100%">
+            <div
+              style="
+                background: white;
+                border-radius: 1rem;
+                padding: 1rem;
+              "
+            >
+              <div style="border-radius: 0.5rem; padding: 0.5rem; background: #efefef">Cool TED Talk name here (selected)</div>
+              <div style="padding: 0.5rem; background: white">Cool TED Talk name here</div>
+              <div style="padding: 0.5rem; background: white">Cool TED Talk name here</div>
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
   <script></script>
