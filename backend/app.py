@@ -35,7 +35,20 @@ def json_search(query):
 
 @app.route("/")
 def home():
-    return render_template('base.html',title="sample html")
+    return render_template('home.html', title="Home")
+
+@app.route("/results")
+def results():
+    return render_template('results.html', title="Results")
+
+@app.route("/video")
+def video():
+    return render_template('video.html', title="Video")
+
+@app.route("/example")
+def example():
+    return render_template('example.html', title="Example")
+
 
 @app.route("/episodes")
 def episodes_search():
