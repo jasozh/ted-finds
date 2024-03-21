@@ -1,15 +1,55 @@
-!doctype html>
-<title>{{title}}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='video.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
-
+<!doctype html>
+<html lang="en">
+<head>
+    <title>Video Page</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='video.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap" rel="stylesheet">
+</head>
 <body>
-    <div>
-        <h1>This is a Video page</h1>
+    <div class="video-main-container">
+        <iframe id="main-video" width="560" height="315" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <h1 id="main-video-title"></h1>
+        <p id="main-video-description"></p>
     </div>
+
+    <div class="video-list-container" id="video-list-container">
+        <h2>Recommended Videos</h2>
+        <div class="grid-container" id="recommended-videos-grid">
+        </div>
+    </div>
+
     <script>
+        function setMainVideo(videoId, title, description) {
+            document.getElementById('main-video').src = `https://www.youtube.com/embed/${videoId}`;
+            document.getElementById('main-video-title').textContent = title;
+            document.getElementById('main-video-description').textContent = description;
+        }
+
+        function addRecommendedVideos(videos) {
+            const grid = document.getElementById('recommended-videos-grid');
+            videos.forEach((video) => {
+                const videoItem = document.createElement('div');
+                videoItem.className = 'video-item';
+                videoItem.innerHTML = `
+                    <iframe src="https://www.youtube.com/embed/${video.videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    <h3 class="video-title">${video.title}</h3>
+                    <p class="video-description">${video.description}</p>
+                `;
+                grid.appendChild(videoItem);
+            });
+        }
+
+        const exampleVideoId = 'RlBTxuWCuL8';
+        const exampleVideos = Array(9).fill().map((_, index) => ({
+            videoId: exampleVideoId,
+            title: `Video Title ${index + 1}`,
+            description: `Short video description ${index + 1}`
+        }));
+
+        setMainVideo(exampleVideoId, 'Meet the founder of the blog revolution', 'The founding mother of the blog revolution, Movable Type\'s Mena Trott, talks about the early days of blogging...');
+        addRecommendedVideos(exampleVideos);
     </script>
 </body>
+</html>
