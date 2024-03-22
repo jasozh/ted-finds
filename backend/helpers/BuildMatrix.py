@@ -12,7 +12,7 @@ def tokenize_transcript(tokenize_method, transcript):
 def types_counts(transcripts):
     tokens = {}
     for transcript in transcripts:
-        for token in tokenize_transcript(transcript[1]):
+        for token in tokenize_transcript(tokenize, transcript[1]):
             tokens[token] = tokens.get(token, 0) + 1
     return tokens
 
@@ -20,7 +20,7 @@ def create_ranked_good_types(
     tokenize_method, tokenize_transcript_method, input_transcripts, input_good_types):
     words_combined = []
     for transcript in input_transcripts:
-        words = tokenize_transcript_method(tokenize_method, transcript)
+        words = tokenize_transcript_method(tokenize_method, transcript[1])
         words_combined += words
 
     tup_list = []
@@ -43,14 +43,17 @@ def create_word_occurrence_matrix(
     speaker_indices = {speaker: idx for idx, speaker in enumerate(input_transcripts)}
     freqs = np.zeros((len(input_transcripts), len(input_good_types)))
 
+    word_idx = {}
+    for idx, (word, freq) in enumerate(input_good_types):
+        word_idx[idx] = word
+
     for idx, transcript in input_transcripts:
-        for text in transcript[1]:
-            tokens = tokenize_method(text)
-            arr = np.zeros(len(input_good_types))
-            for word_index in range(len(input_good_types)):
-                good_word = input_good_types[word_index]
-                arr[word_index] = tokens.count(good_word)
-            freqs[idx] += arr[:]
+        tokens = tokenize_method(transcript)
+        arr = np.zeros(len(input_good_types))
+        for word_index in word_idx:
+            good_word, _ = word_idx[word_index]
+            arr[word_index] = tokens.count(good_word)
+        freqs[idx] += arr[:]
 
     return freqs
 
@@ -68,7 +71,6 @@ def df_to_word_occ_mat(df):
             filtered_counts[word] = counts[word]
 
     good_types = create_ranked_good_types(tokenize, tokenize_transcript, list_of_tuples, filtered_counts)
-    word_occ_mat = create_word_occurrence_matrix(tokenize, list_of_tuples, good_types)
+    docname_to_idx, word_occ_mat = create_word_occurrence_matrix(tokenize, list_of_tuples, good_types)
 
-    return word_occ_mat
-    
+    return docname_to_idx, word_occ_mat
