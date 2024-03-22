@@ -39,7 +39,34 @@ def home():
 
 @app.route("/results")
 def results():
-    return render_template('results.html', title="Results")
+    # example data
+    # data = [{
+    #     'title': ['Presentation 1', 'Presentation 2', 'Presentation 3'],
+    #     'page_url': ['https://example.com/1', 'https://example.com/2', 'https://example.com/3'],
+    #     'likes': [100, 150, 80],
+    #     'recorded_date': ['2024-01-01', '2024-02-15', '2024-03-10'],
+    #     'speakers': ['Speaker A', 'Speaker B', 'Speaker C'],
+    #     'topics': ['Topic X', 'Topic Y', 'Topic Z'],
+    #     'views': [1000, 1200, 800],
+    #     'summary': ['Summary of Presentation 1', 'Summary of Presentation 2', 'Summary of Presentation 3']
+    # }]
+    data = [{
+        'title': ['Presentation 1'],
+        'page_url': ['https://example.com/1'],
+        'likes': [1000],
+        'recorded_date': ['2024-01-01'],
+        'speakers': ['Speaker A'],
+        'topics': ['Topic X'],
+        'views': [5000],
+        'summary': ['Summary of Ted Talk']
+    }]
+    data = pd.DataFrame(data)
+    # for result in data.iloc:
+    #     print("START")
+    #     print(result)
+    # print(data.iloc[0].title)
+    # print(data.head())
+    return render_template('results.html', title="Results", data=data)
 
 @app.route("/video")
 def video():
