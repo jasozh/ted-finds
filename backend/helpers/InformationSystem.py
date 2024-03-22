@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import os
 from googleapiclient.discovery import build
 from dotenv import load_dotenv
 
@@ -102,7 +103,7 @@ def preprocess_data() -> None:
         body: str
       }
     """
-    ted_talks = pd.read_csv("talks_info.csv")
+    ted_talks = pd.read_csv("static/data/talks_info.csv")
     ted_talks['comments'] = ted_talks['youtube_video_code'].apply(func=get_video_comments)
     ted_talks['likes_int'] = ted_talks['likes'].apply(convert_likes_to_int)
     ted_talks.to_csv("talks_info_final.csv")
