@@ -27,7 +27,6 @@ def related_videos(id: str) -> pd.DataFrame:
     """
     pass
 
-# api_key = "AIzaSyC5V617i-EfdUJGHpRqwNfxMC6BkxqvQrA"
 def get_video_comments(video_id, api_key=API_KEY) -> list[dict]:
     """
     Takes a YouTube Video ID and returns the top 20 comments in a list of the form:
