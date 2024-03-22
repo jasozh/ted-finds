@@ -4,7 +4,7 @@ def jaccard(query, doc):
     return
 
 def jaccard_mat(query, docs):
-    return
+    return   
 
 def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript = 1.0, w_summary = 0.0, w_title = 0.0, w_sentiment = 0.0, w_speaker = 0.0):
     """Returns a float giving the weighted similarity of 
@@ -35,7 +35,7 @@ def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript = 1.0, w_summary = 
 
     denom = np.linalg.norm(m1) * np.linalg.norm(m2)
 
-    cosine_sim = num/denom
+    cosine_sim = 0 if (denom == 0) else num/denom
 
     # Summary
     ## Need a summary tf-idf matrix
