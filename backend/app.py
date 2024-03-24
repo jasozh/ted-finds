@@ -40,12 +40,14 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     Filters the list of suggested titles based on edit distance
     """
     start_time = time.time()
+    q = search_query.lower()
 
     # Find smallest 5 edit distance
     n = titles.size
     edit_distance_arr = np.zeros(n) # (i, val) = (df index, edit distance to q)
     for i in range(n):
-        edit_distance_arr[i] = edit_distance(search_query, titles.iloc[i])
+        d = titles.iloc[i].lower()
+        edit_distance_arr[i] = edit_distance(q, d)
     top_5_indices = np.argsort(edit_distance_arr)[:5]
 
     # Return as list
