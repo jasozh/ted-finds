@@ -30,8 +30,7 @@
     };
 
     /** Handles clicking on a search autocomplete option */
-    const onClick = (id) => {
-      talk_title = document.getElementById(id).innerText;
+    const onClick = (talk_title) => {
       window.location.href = `/results?q=${talk_title}`;
     };
 
@@ -94,13 +93,15 @@
           </button>
           <div style="position: absolute; margin-top: 3.9rem; width: 100%">
             <div style="background: white; border-radius: 1rem; padding: 1rem">
-              {% for title in autocomplete %}
+              {% for title, score in autocomplete %}
               <div
                 id="{{ title }}"
                 onclick="onClick('{{ title }}')"
                 class="autocomplete"
+                style="display: flex; justify-content: space-between;"
               >
-                {{ title }}
+                <div>{{ title }}</div>
+                <div>{{ score }}</div>
               </div>
               {% endfor %}
             </div>

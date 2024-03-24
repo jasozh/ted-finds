@@ -63,10 +63,10 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
 def home():
     search_query = request.args.get("q")
     if search_query:
-        autocomplete = [title for (title, score) in autocomplete_filter(search_query)]
+        autocomplete = autocomplete_filter(search_query)
     else:
         search_query = ""
-        autocomplete = titles[:5]
+        autocomplete = [(title, "") for title in titles[:5]]
     return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
 
 @app.route("/results")
