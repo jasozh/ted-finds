@@ -14,8 +14,15 @@
 
 <body>
   <script>
+    /** Autofocus search bar */
+    window.onload = () => {
+      var input = document.getElementById("search");
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    };
+
     /** The value of the search query */
-    var searchQuery = "";
+    var searchQuery = "{{ query }}";
 
     /** Handles typing into the search bar */
     const handleChange = () => {
@@ -24,15 +31,15 @@
 
     /** Handles clicking on a search autocomplete option */
     const onClick = (id) => {
-      searchQuery = document.getElementById(id).textContent
-      document.getElementById("search").value = searchQuery
-    }
+      talk_title = document.getElementById(id).innerText;
+      window.location.href = `/results?q=${talk_title}`;
+    };
 
     /** Handles submitting a search */
     const onSubmit = () => {
-      event.preventDefault()
-      window.location.href=`/results?query=${escape(searchQuery)}`
-    }
+      event.preventDefault();
+      window.location.href = `search?q=${escape(searchQuery)}`;
+    };
   </script>
   <div style="display: flex; height: 100vh">
     <div
@@ -61,6 +68,7 @@
             placeholder="Search for a TED Talk"
             id="search"
             oninput="handleChange()"
+            value="{{ query }}"
             style="
               font-size: 1.2rem;
               width: 100%;
@@ -87,10 +95,14 @@
           <div style="position: absolute; margin-top: 3.9rem; width: 100%">
             <div style="background: white; border-radius: 1rem; padding: 1rem">
               {% for title in autocomplete %}
-              <div id="{{ title }}" onclick="onClick('{{ title }}')" class="autocomplete">{{ title }}</div>
+              <div
+                id="{{ title }}"
+                onclick="onClick('{{ title }}')"
+                class="autocomplete"
+              >
+                {{ title }}
+              </div>
               {% endfor %}
-              <!-- <div id="option2" onclick="onClick('option2')" class="autocomplete">Cool TED Talk name here</div>
-              <div id="option3" onclick="onClick('option3')" class="autocomplete">Cool TED Talk name here</div> -->
             </div>
           </div>
         </div>

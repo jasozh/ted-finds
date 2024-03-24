@@ -3,7 +3,10 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+from helpers.edit_distance import *
 import pandas as pd
+import numpy as np
+import time
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -32,13 +35,43 @@ def json_search(query):
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
 
+def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
+    """
+    Filters the list of suggested titles based on edit distance
+    """
+    start_time = time.time()
+
+    # Find smallest 5 edit distance
+    n = titles.size
+    edit_distance_arr = np.zeros(n) # (i, val) = (df index, edit distance to q)
+    for i in range(n):
+        edit_distance_arr[i] = edit_distance(search_query, titles.iloc[i])
+    top_5_indices = np.argsort(edit_distance_arr)[:5]
+
+    # Return as list
+    result = [(titles.iloc[i], edit_distance_arr[i]) for i in top_5_indices]
+
+    # Measure performance
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"The operation took {elapsed_time:.4f} seconds.")
+
+    return result
+
 @app.route("/")
+@app.route("/search")
 def home():
-    return render_template('home.html', title="Home", autocomplete=titles)
+    search_query = request.args.get("q")
+    if search_query:
+        autocomplete = [title for (title, score) in autocomplete_filter(search_query)]
+    else:
+        search_query = ""
+        autocomplete = titles[:5]
+    return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
 
 @app.route("/results")
 def results():
-    search_query = request.args.get('query')
+    search_query = request.args.get('q')
     data = [{
         'title': ['Presentation 1'],
         'page_url': ['https://example.com/1'],
