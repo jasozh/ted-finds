@@ -13,13 +13,12 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Specify the path to the JSON file relative to the current script
-json_file_path = os.path.join(current_directory, 'init.json')
+json_file_path = os.path.join(current_directory, 'static/data/init.json')
 
 # Assuming your JSON data is stored in a file named 'init.json'
 with open(json_file_path, 'r') as file:
-    data = json.load(file)
-    episodes_df = pd.DataFrame(data['episodes'])
-    reviews_df = pd.DataFrame(data['reviews'])
+    df = pd.read_json(file)
+    titles = df["title"]
 
 app = Flask(__name__)
 CORS(app)
@@ -35,8 +34,7 @@ def json_search(query):
 
 @app.route("/")
 def home():
-    autocomplete = ["TED Talk 1", "TED Talk 2", "TED Talk 3", "asdf", "sdfg"]
-    return render_template('home.html', title="Home", autocomplete=autocomplete)
+    return render_template('home.html', title="Home", autocomplete=titles)
 
 @app.route("/results")
 def results():
