@@ -39,7 +39,18 @@ def home():
 
 @app.route("/results")
 def results():
-    return render_template('results.html', title="Results")
+    data = [{
+        'title': ['Presentation 1'],
+        'page_url': ['https://example.com/1'],
+        'likes': [1000],
+        'recorded_date': ['2024-01-01'],
+        'speakers': ['Speaker A'],
+        'topics': ['Topic X'],
+        'views': [5000],
+        'summary': ['Summary of Ted Talk']
+    }]
+    data = pd.DataFrame(data)
+    return render_template('results.html', title="Results", data=data)
 
 @app.route("/video")
 def video():
