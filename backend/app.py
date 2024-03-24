@@ -35,10 +35,12 @@ def json_search(query):
 
 @app.route("/")
 def home():
-    return render_template('home.html', title="Home")
+    autocomplete = ["TED Talk 1", "TED Talk 2", "TED Talk 3", "asdf", "sdfg"]
+    return render_template('home.html', title="Home", autocomplete=autocomplete)
 
 @app.route("/results")
 def results():
+    search_query = request.args.get('query')
     data = [{
         'title': ['Presentation 1'],
         'page_url': ['https://example.com/1'],

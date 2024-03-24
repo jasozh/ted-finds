@@ -13,6 +13,27 @@
 />
 
 <body>
+  <script>
+    /** The value of the search query */
+    var searchQuery = "";
+
+    /** Handles typing into the search bar */
+    const handleChange = () => {
+      searchQuery = document.getElementById("search").value;
+    };
+
+    /** Handles clicking on a search autocomplete option */
+    const onClick = (id) => {
+      searchQuery = document.getElementById(id).textContent
+      document.getElementById("search").value = searchQuery
+    }
+
+    /** Handles submitting a search */
+    const onSubmit = () => {
+      event.preventDefault()
+      window.location.href=`/results?query=${escape(searchQuery)}`
+    }
+  </script>
   <div style="display: flex; height: 100vh">
     <div
       style="
@@ -26,10 +47,20 @@
       <h1 style="padding: 0; padding-bottom: 1rem; margin: 0; font-size: 4rem">
         TED Finds
       </h1>
-      <form>
-        <div style="margin-bottom: 10rem; position: relative; display: flex; min-width: 40rem">
+      <form onsubmit="onSubmit()">
+        <div
+          style="
+            margin-bottom: 10rem;
+            position: relative;
+            display: flex;
+            min-width: 40rem;
+          "
+        >
           <input
+            autocomplete="off"
             placeholder="Search for a TED Talk"
+            id="search"
+            oninput="handleChange()"
             style="
               font-size: 1.2rem;
               width: 100%;
@@ -54,21 +85,16 @@
             <i style="font-size: 1.2rem" class="fa fa-search">&nbsp;</i>
           </button>
           <div style="position: absolute; margin-top: 3.9rem; width: 100%">
-            <div
-              style="
-                background: white;
-                border-radius: 1rem;
-                padding: 1rem;
-              "
-            >
-              <div style="border-radius: 0.5rem; padding: 0.5rem; background: #efefef">Cool TED Talk name here (selected)</div>
-              <div style="padding: 0.5rem; background: white">Cool TED Talk name here</div>
-              <div style="padding: 0.5rem; background: white">Cool TED Talk name here</div>
+            <div style="background: white; border-radius: 1rem; padding: 1rem">
+              {% for title in autocomplete %}
+              <div id="{{ title }}" onclick="onClick('{{ title }}')" class="autocomplete">{{ title }}</div>
+              {% endfor %}
+              <!-- <div id="option2" onclick="onClick('option2')" class="autocomplete">Cool TED Talk name here</div>
+              <div id="option3" onclick="onClick('option3')" class="autocomplete">Cool TED Talk name here</div> -->
             </div>
           </div>
         </div>
       </form>
     </div>
   </div>
-  <script></script>
 </body>
