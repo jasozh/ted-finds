@@ -5,9 +5,13 @@
 body {
   margin: 0;
   padding: 0;
-  font-family: 'Open Sans', sans-serif;
+  font-family: "Open Sans", sans-serif;
   background-color: #000; /* Start color: Black */
-  background-image: linear-gradient(62deg, #000 50%, #ff0000 100%); /* Gradient from Black to Red */
+  background-image: linear-gradient(
+    62deg,
+    #000 50%,
+    #ff0000 100%
+  ); /* Gradient from Black to Red */
   line-height: 1.5;
   color: #ffffff; /* White text for better visibility */
 }
@@ -55,7 +59,7 @@ body {
   border: 1px solid #ccc;
   border-radius: 1rem;
   overflow: hidden;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   background-color: #000; /* Video items have a black background */
 }
 
@@ -66,7 +70,8 @@ body {
   border-bottom: 1px solid #ccc;
 }
 
-.video-item .video-title, .video-description {
+.video-item .video-title,
+.video-description {
   padding: 1rem;
 }
 
@@ -93,12 +98,17 @@ body {
 }
 
 .comment {
-  background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent white for contrast */
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Semi-transparent white for contrast */
   margin-bottom: 1rem;
   padding: 1rem;
   border-radius: 0.5rem;
   color: #ffffff; /* White text for readability */
   font-size: 0.9rem;
   line-height: 1.4;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1); /* Subtle shadow for depth */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
 }
