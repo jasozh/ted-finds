@@ -107,11 +107,14 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", data=data)
+    return render_template('results.html', title="Results", search_query=search_query, data=data)
 
 @app.route("/video")
 def video():
-    return render_template('video.html', title="Video")
+    video_title = request.args.get('w')
+    data = df[df["title"] == video_title].iloc[0]
+    print(data)
+    return render_template('video.html', title="Video", data=data)
 
 @app.route("/example")
 def example():
