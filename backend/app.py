@@ -3,7 +3,10 @@ import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
+from helpers.edit_distance import *
 import pandas as pd
+import numpy as np
+import time
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -13,13 +16,32 @@ os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
 # Specify the path to the JSON file relative to the current script
-json_file_path = os.path.join(current_directory, 'init.json')
+json_file_path = os.path.join(current_directory, 'static/data/init.json')
 
 # Assuming your JSON data is stored in a file named 'init.json'
 with open(json_file_path, 'r') as file:
-    data = json.load(file)
-    episodes_df = pd.DataFrame(data['episodes'])
-    reviews_df = pd.DataFrame(data['reviews'])
+    """
+    Creates a Pandas DataFrame with the following keys for each TED Talk:
+        "_id" 
+        "duration" 
+        "event" 
+        "likes" 
+        "page_url" 
+        "published_date" 
+        "recorded_date" 
+        "related_videos" 
+        "speakers" 
+        "subtitle_languages" 
+        "summary" 
+        "title" 
+        "topics" 
+        "transcript" 
+        "views" 
+        "youtube_video_code" 
+        "comments" 
+    """
+    df = pd.read_json(file)
+    titles = df["title"]
 
 app = Flask(__name__)
 CORS(app)
@@ -33,23 +55,58 @@ def json_search(query):
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
 
+def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
+    """
+    Filters the list of suggested titles based on edit distance
+    """
+    start_time = time.time()
+    q = search_query.lower()
+
+    # Find smallest 5 edit distance
+    n = titles.size
+    edit_distance_arr = np.zeros(n) # (i, val) = (df index, edit distance to q)
+    for i in range(n):
+        d = titles.iloc[i].lower()
+        edit_distance_arr[i] = edit_distance(q, d)
+    top_5_indices = np.argsort(edit_distance_arr)[:5]
+
+    # Return as list
+    result = [(titles.iloc[i], edit_distance_arr[i]) for i in top_5_indices]
+
+    # Measure performance
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"The operation took {elapsed_time:.4f} seconds.")
+
+    return result
+
 @app.route("/")
+@app.route("/search")
 def home():
-    return render_template('home.html', title="Home")
+    search_query = request.args.get("q")
+    if search_query:
+        autocomplete = autocomplete_filter(search_query)
+    else:
+        search_query = ""
+        autocomplete = [(title, "") for title in titles[:5]]
+    return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
 
 @app.route("/results")
 def results():
-    data = [{
-        'title': ['Presentation 1'],
-        'page_url': ['https://example.com/1'],
-        'likes': [1000],
-        'recorded_date': ['2024-01-01'],
-        'speakers': ['Speaker A'],
-        'topics': ['Topic X'],
-        'views': [5000],
-        'summary': ['Summary of Ted Talk']
-    }]
-    data = pd.DataFrame(data)
+    search_query = request.args.get('q')
+    data = df[df["title"] == search_query]
+    
+    # data = [{
+    #     'title': ['Presentation 1'],
+    #     'page_url': ['https://example.com/1'],
+    #     'likes': [1000],
+    #     'recorded_date': ['2024-01-01'],
+    #     'speakers': ['Speaker A'],
+    #     'topics': ['Topic X'],
+    #     'views': [5000],
+    #     'summary': ['Summary of Ted Talk']
+    # }]
+
     return render_template('results.html', title="Results", data=data)
 
 @app.route("/video")

@@ -13,3 +13,15 @@ body {
 input {
   outline: none;
 }
+
+.autocomplete {
+  padding: 0.5rem;
+  background: white;
+}
+
+.autocomplete:hover {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: #efefef;
+  cursor: pointer;
+}
