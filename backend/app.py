@@ -92,11 +92,22 @@ def home():
         autocomplete = [(title, "") for title in titles[:5]]
     return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
 
+def get_top_10_for_query(query):
+    p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
+    p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
+    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
+    with open(p1, 'r') as json_file:    
+        docname_to_idx = json.load(json_file)
+    with open(p2, 'r') as json_file:    
+        inv = json.load(json_file)
+    matrix = np.load(p3)
+    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
 
-    results = bm.get_top_10_for_query(search_query)
+    results = get_top_10_for_query(search_query)
 
     titles = [result[0] for result in results]
 
