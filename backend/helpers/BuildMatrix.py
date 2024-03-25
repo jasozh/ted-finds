@@ -51,7 +51,7 @@ def create_word_occurrence_matrix(
     freqs = np.zeros((len(input_transcripts), len(input_good_types)))
 
     word_idx = {}
-    for idx, (word, freq) in enumerate(input_good_types):
+    for idx, word in enumerate(input_good_types):
         word_idx[idx] = word
 
     for idx, transcript, _ in input_transcripts:
@@ -75,11 +75,12 @@ def df_to_word_occ_mat(df):
 
     filtered_counts = {}
     for word in counts:
-        if (counts[word] < 5000):
+        if (counts[word] < 500):
             filtered_counts[word] = counts[word]
+    print(len(filtered_counts))
 
-    good_types = create_ranked_good_types(tokenize, tokenize_transcript, list_of_tuples, filtered_counts)
-    docname_to_idx, word_occ_mat = create_word_occurrence_matrix(tokenize, list_of_tuples, good_types)
+    #good_types = create_ranked_good_types(tokenize, tokenize_transcript, list_of_tuples, filtered_counts)
+    docname_to_idx, word_occ_mat = create_word_occurrence_matrix(tokenize, list_of_tuples, filtered_counts)
 
     return docname_to_idx, word_occ_mat
 
@@ -142,7 +143,7 @@ def load_data():
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
         df = pd.json_normalize(data)
-        #df = df.head(10)
+        df = df.head(500)
     docname_to_idx, word_occ_mat = df_to_word_occ_mat(df)
     return docname_to_idx, word_occ_mat
 
