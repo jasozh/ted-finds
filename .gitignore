@@ -20,4 +20,3 @@ helpers/*
 json_template/
 
 backend/.env
-flask_app/
