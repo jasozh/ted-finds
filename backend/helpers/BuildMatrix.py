@@ -120,7 +120,7 @@ def get_rankings(talk, matrix, index, inv):
 
     # Get list of similarity scores for movie
     score_lst = matrix[mov_idx]
-    cos_sim_mat = [(inv[i], s) for i,s in enumerate(score_lst)]
+    cos_sim_mat = [(inv[str(i)], s) for i,s in enumerate(score_lst)]
 
     # Do not account for movie itself in ranking
     cos_sim_mat = cos_sim_mat[:mov_idx] + cos_sim_mat[mov_idx+1:]
@@ -164,4 +164,10 @@ def build_similarity_matrix():
     with open("docname_to_idx", 'w') as json_file:
         json.dump(docname_to_idx, json_file)
 
-    
+def get_top_10_for_query(query):
+    with open("docname_to_idx", 'r') as json_file:    
+        docname_to_idx = json.load(json_file)
+    with open("idx_to_docnames", 'r') as json_file:    
+        inv = json.load(json_file)
+    matrix = np.load("cosine_similarity_matrix.npy")
+    return get_rankings(query, matrix, docname_to_idx, inv)[:10]
