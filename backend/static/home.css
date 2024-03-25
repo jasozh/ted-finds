@@ -1,0 +1,27 @@
+/* Import Inter from Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+body {
+  margin: 0;
+  padding: 0;
+  line-height: 1.5;
+  font-family: "Inter", sans-serif;
+  background-color: #8ec5fc;
+  background-image: linear-gradient(62deg, #8ec5fc 0%, #e0c3fc 100%);
+}
+
+input {
+  outline: none;
+}
+
+.autocomplete {
+  padding: 0.5rem;
+  background: white;
+}
+
+.autocomplete:hover {
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  background: #efefef;
+  cursor: pointer;
+}

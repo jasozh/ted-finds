@@ -1,15 +1,113 @@
-<!doctype html>
+<!DOCTYPE html>
 <title>{{title}}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+/>
+<link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link
+  href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+  rel="stylesheet"
+/>
 
 <body>
-    <div>
-        <h1>This is the Home page</h1>
+  <script>
+    /** Autofocus search bar */
+    window.onload = () => {
+      var input = document.getElementById("search");
+      input.focus();
+      input.setSelectionRange(input.value.length, input.value.length);
+    };
+
+    /** The value of the search query */
+    var searchQuery = "{{ query }}";
+
+    /** Handles typing into the search bar */
+    const handleChange = () => {
+      searchQuery = document.getElementById("search").value;
+    };
+
+    /** Handles clicking on a search autocomplete option */
+    const onClick = (talk_title) => {
+      window.location.href = `/results?q=${talk_title}`;
+    };
+
+    /** Handles submitting a search */
+    const onSubmit = () => {
+      event.preventDefault();
+      window.location.href = `search?q=${escape(searchQuery)}`;
+    };
+  </script>
+  <div style="display: flex; height: 100vh">
+    <div
+      style="
+        min-width: 40rem;
+        display: flex;
+        flex-direction: column;
+        margin: auto;
+        align-items: center;
+      "
+    >
+      <h1 style="padding: 0; padding-bottom: 1rem; margin: 0; font-size: 4rem">
+        TED Finds
+      </h1>
+      <form onsubmit="onSubmit()">
+        <div
+          style="
+            margin-bottom: 10rem;
+            position: relative;
+            display: flex;
+            min-width: 40rem;
+          "
+        >
+          <input
+            autocomplete="off"
+            placeholder="Search for a TED Talk"
+            id="search"
+            oninput="handleChange()"
+            value="{{ query }}"
+            style="
+              font-size: 1.2rem;
+              width: 100%;
+              padding-left: 1.5rem;
+              padding-right: 1.5rem;
+              padding-top: 1rem;
+              padding-bottom: 1rem;
+              border: 0;
+              border-radius: 5rem 0 0 5rem;
+            "
+          />
+          <button
+            style="
+              background: white;
+              cursor: pointer;
+              border-radius: 0 5rem 5rem 0;
+              width: 4rem;
+              border: 0;
+            "
+            type="submit"
+          >
+            <i style="font-size: 1.2rem" class="fa fa-search">&nbsp;</i>
+          </button>
+          <div style="position: absolute; margin-top: 3.9rem; width: 100%">
+            <div style="background: white; border-radius: 1rem; padding: 1rem">
+              {% for title, score in autocomplete %}
+              <div
+                id="{{ title }}"
+                onclick="onClick('{{ title }}')"
+                class="autocomplete"
+                style="display: flex; justify-content: space-between;"
+              >
+                <div>{{ title }}</div>
+                <div>{{ score }}</div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </form>
     </div>
-    <script>
-    </script>
+  </div>
 </body>
