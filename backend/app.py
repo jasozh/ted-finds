@@ -103,6 +103,9 @@ def get_top_10_for_query(query):
     matrix = np.load(p3)
     return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
 
+df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
+df['topics'] = df['topics'].apply(lambda x: json.loads(x))
+
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
@@ -112,7 +115,8 @@ def results():
     titles = [result[0] for result in results]
 
     data = df[df["title"].isin(titles)]
-    
+    #data = {'results': df.to_dict(orient='records')}
+
     # data = [{
     #     'title': ['Presentation 1'],
     #     'page_url': ['https://example.com/1'],
