@@ -100,7 +100,7 @@ def results():
 
     titles = [result[0] for result in results]
 
-    data = df[df["title"] == search_query]
+    data = df[df["title"].isin(titles)]
     
     # data = [{
     #     'title': ['Presentation 1'],
