@@ -113,8 +113,16 @@ def results():
 def video():
     video_title = request.args.get('w')
     data = df[df["title"] == video_title].iloc[0]
-    print(data)
-    return render_template('video.html', title="Video", data=data)
+    related_videos = []
+    comments = [
+        "Positive Comment 1 from YouTube...",
+        "Positive Comment 2 from YouTube...",
+        "Positive Comment 3 from YouTube...",
+        "Negative Comment 1 from YouTube...",
+        "Negative Comment 2 from YouTube...",
+        "Negative Comment 3 from YouTube...",
+    ];
+    return render_template('video.html', title="Video", data=data, related_videos=related_videos, comments=comments)
 
 @app.route("/example")
 def example():
