@@ -14,6 +14,15 @@
         <p id="main-video-description"></p>
     </div>
 
+    <div class="comments-container">
+        <div class="comments-column" id="comments-column-1">
+            <!-- Comments will be dynamically added here -->
+        </div>
+        <div class="comments-column" id="comments-column-2">
+            <!-- Comments will be dynamically added here -->
+        </div>
+    </div>
+
     <div class="video-list-container" id="video-list-container">
         <h2>Recommended Videos</h2>
         <div class="grid-container" id="recommended-videos-grid">
@@ -41,15 +50,39 @@
             });
         }
 
+        function addComments(comments) {
+            const column1 = document.getElementById('comments-column-1');
+            const column2 = document.getElementById('comments-column-2');
+            comments.forEach((comment, index) => {
+                const commentDiv = document.createElement('div');
+                commentDiv.className = 'comment';
+                commentDiv.textContent = comment; // Assuming each comment is just text for simplicity
+                if (index % 2 === 0) {
+                    column1.appendChild(commentDiv);
+                } else {
+                    column2.appendChild(commentDiv);
+                }
+            });
+        }
+
         const exampleVideoId = 'RlBTxuWCuL8';
         const exampleVideos = Array(9).fill().map((_, index) => ({
             videoId: exampleVideoId,
             title: `Video Title ${index + 1}`,
             description: `Short video description ${index + 1}`
         }));
+        const exampleComments = [
+            "Positive Comment 1 from YouTube...",
+            "Positive Comment 2 from YouTube...",
+            "Positive Comment 3 from YouTube...",
+            "Negative Comment 1 from YouTube...",
+            "Negative Comment 2 from YouTube...",
+            "Negative Comment 3 from YouTube..."
+        ];
 
         setMainVideo(exampleVideoId, 'Meet the founder of the blog revolution', 'The founding mother of the blog revolution, Movable Type\'s Mena Trott, talks about the early days of blogging...');
         addRecommendedVideos(exampleVideos);
+        addComments(exampleComments);
     </script>
 </body>
 </html>
