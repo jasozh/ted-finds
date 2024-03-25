@@ -20,6 +20,26 @@ json_file_path = os.path.join(current_directory, 'static/data/init.json')
 
 # Assuming your JSON data is stored in a file named 'init.json'
 with open(json_file_path, 'r') as file:
+    """
+    Creates a Pandas DataFrame with the following keys for each TED Talk:
+        "_id" 
+        "duration" 
+        "event" 
+        "likes" 
+        "page_url" 
+        "published_date" 
+        "recorded_date" 
+        "related_videos" 
+        "speakers" 
+        "subtitle_languages" 
+        "summary" 
+        "title" 
+        "topics" 
+        "transcript" 
+        "views" 
+        "youtube_video_code" 
+        "comments" 
+    """
     df = pd.read_json(file)
     titles = df["title"]
 
@@ -74,17 +94,19 @@ def home():
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
-    data = [{
-        'title': ['Presentation 1'],
-        'page_url': ['https://example.com/1'],
-        'likes': [1000],
-        'recorded_date': ['2024-01-01'],
-        'speakers': ['Speaker A'],
-        'topics': ['Topic X'],
-        'views': [5000],
-        'summary': ['Summary of Ted Talk']
-    }]
-    data = pd.DataFrame(data)
+    data = df[df["title"] == search_query]
+    
+    # data = [{
+    #     'title': ['Presentation 1'],
+    #     'page_url': ['https://example.com/1'],
+    #     'likes': [1000],
+    #     'recorded_date': ['2024-01-01'],
+    #     'speakers': ['Speaker A'],
+    #     'topics': ['Topic X'],
+    #     'views': [5000],
+    #     'summary': ['Summary of Ted Talk']
+    # }]
+
     return render_template('results.html', title="Results", data=data)
 
 @app.route("/video")
