@@ -95,9 +95,12 @@ def home():
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
-    data = df[df["title"] == search_query]
 
-    
+    results = bm.get_top_10_for_query(search_query)
+
+    titles = [result[0] for result in results]
+
+    data = df[df["title"] == search_query]
     
     # data = [{
     #     'title': ['Presentation 1'],
@@ -110,7 +113,7 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", data=data, )
+    return render_template('results.html', title="Results", data=data)
 
 @app.route("/video")
 def video():
