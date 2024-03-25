@@ -7,6 +7,7 @@ from helpers.edit_distance import *
 import pandas as pd
 import numpy as np
 import time
+import helpers.BuildMatrix as bm
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -40,7 +41,7 @@ with open(json_file_path, 'r') as file:
         "youtube_video_code" 
         "comments" 
     """
-    df = pd.read_json(file)
+    df = pd.read_json(file).head(500)
     titles = df["title"]
 
 app = Flask(__name__)
@@ -95,6 +96,8 @@ def home():
 def results():
     search_query = request.args.get('q')
     data = df[df["title"] == search_query]
+
+    
     
     # data = [{
     #     'title': ['Presentation 1'],
@@ -107,7 +110,7 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", data=data)
+    return render_template('results.html', title="Results", data=data, )
 
 @app.route("/video")
 def video():
