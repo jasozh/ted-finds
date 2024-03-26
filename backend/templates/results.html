@@ -21,6 +21,12 @@
 </head>
 
 <body>
+  <script>
+    /** Handles clicking on a search autocomplete option */
+    const onClick = (talk_title) => {
+      window.location.href = `/video?w=${talk_title}`;
+    };
+  </script>
   <nav class="navbar">
     <ul>
       <li>
@@ -46,9 +52,17 @@
 
     <h3 id="jump-exp">Top Results:</h3>
     {% for result in data.iloc %}
-    <div class="block">
+    <div
+      class="block"
+      onclick="onClick('{{search_query}}')"
+      style="cursor: pointer"
+    >
       <h2 id="jump-exp">{{ result.title }}</h2>
       <br />
+      <p>
+        <strong>Cosine similarity:</strong> {{ result.cosine_similarity }}
+        <br />
+      </p>
       <p><strong>Summary:</strong> {{ result.summary }} <br /></p>
       <p><strong>Likes:</strong> {{ result.likes }}</p>
       <p><strong>Recorded Date:</strong> {{ result.recorded_date }}</p>

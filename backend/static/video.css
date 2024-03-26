@@ -1,0 +1,114 @@
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap");
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css");
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Open Sans", sans-serif;
+  background-color: #000; /* Start color: Black */
+  background-image: linear-gradient(
+    62deg,
+    #000 50%,
+    #ff0000 100%
+  ); /* Gradient from Black to Red */
+  line-height: 1.5;
+  color: #ffffff; /* White text for better visibility */
+}
+
+.video-main-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding-top: 2rem;
+}
+
+#main-video {
+  border-radius: 1rem;
+  margin-bottom: 1rem;
+}
+
+#main-video-title {
+  font-size: 2.5rem;
+}
+
+#main-video-description {
+  font-size: 1.2rem;
+  width: 80%;
+  text-align: center;
+}
+
+.video-list-container {
+  padding: 2rem;
+}
+
+.video-list-container h2 {
+  font-size: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.grid-container {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 videos per row */
+  gap: 1rem;
+  padding: 0 4rem;
+}
+
+.video-item {
+  border: 1px solid #ccc;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  background-color: #000; /* Video items have a black background */
+}
+
+.video-item iframe {
+  width: 100%;
+  height: 200px;
+  border: none;
+  border-bottom: 1px solid #ccc;
+}
+
+.video-item .video-title,
+.video-description {
+  padding: 1rem;
+}
+
+.video-title {
+  font-size: 1.5rem;
+  color: #ffffff; /* White for visibility */
+}
+
+.video-description {
+  font-size: 1rem;
+  color: #ffffff; /* White for visibility */
+}
+
+.comments-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.comments-column {
+  flex: 1;
+  max-width: 50%;
+}
+
+.comment {
+  background-color: rgba(
+    255,
+    255,
+    255,
+    0.1
+  ); /* Semi-transparent white for contrast */
+  margin-bottom: 1rem;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  color: #ffffff; /* White text for readability */
+  font-size: 0.9rem;
+  line-height: 1.4;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
