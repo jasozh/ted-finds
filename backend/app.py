@@ -41,7 +41,7 @@ with open(json_file_path, 'r') as file:
         "youtube_video_code" 
         "comments" 
     """
-    df = pd.read_json(file).head(500)
+    df = pd.read_json(file)
     titles = df["title"]
 
     df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
@@ -67,13 +67,24 @@ def json_search(query):
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    p3 = os.path.join(current_directory,
-                      'helpers/cosine_similarity_matrix.npy')
+    #p3 = os.path.join(current_directory,
+    #                  'helpers/cosine_similarity_matrix.npy')
+    
+    part1 = np.load(os.path.join(current_directory, 'helpers/part1.npy'))
+    part2 = np.load(os.path.join(current_directory, 'helpers/part2.npy'))
+    part3 = np.load(os.path.join(current_directory, 'helpers/part3.npy'))
+    part4 = np.load(os.path.join(current_directory, 'helpers/part4.npy'))
+
+    # Concatenate the parts to reconstruct the original matrix
+    top = np.concatenate((part1, part2), axis=1)
+    bottom = np.concatenate((part3, part4), axis=1)
+    matrix = np.concatenate((top, bottom), axis=0)
+
     with open(p1, 'r') as json_file:
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
-    matrix = np.load(p3)
+    #matrix = np.load(p3)
     return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
 
 
@@ -129,11 +140,11 @@ def results():
     data = df[df["title"].isin(titles)]
 
     # Create new column
-    data["cosine_similarity"] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    data["cosine_similarity"] = [-1 for _ in range(len(data))]
     print(titles_scores_dict)
     for i, video in data.iterrows():
         title = video["title"]
-        data.loc[i, "cosine_similarity"] = titles_scores_dict[title]
+        data.loc[i, "cosine_similarity"] = round(titles_scores_dict[title]*100, 2)
 
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
