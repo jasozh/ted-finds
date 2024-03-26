@@ -1,15 +1,18 @@
 import numpy as np
 
+
 def jaccard(query, doc):
     return
 
-def jaccard_mat(query, docs):
-    return   
 
-def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript = 1.0, w_summary = 0.0, w_title = 0.0, w_sentiment = 0.0, w_speaker = 0.0):
+def jaccard_mat(query, docs):
+    return
+
+
+def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript=1.0, w_summary=0.0, w_title=0.0, w_sentiment=0.0, w_speaker=0.0):
     """Returns a float giving the weighted similarity of 
        the two TED Talks.
-    
+
     Params: {talk1 (str): Name of the first movie.
             talk2 (str): Name of the second movie.
             doc_mat (numpy.ndarray): Term-document matrix of movie transcripts, where 
@@ -38,28 +41,29 @@ def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript = 1.0, w_summary = 
     cosine_sim = 0 if (denom == 0) else num/denom
 
     # Summary
-    ## Need a summary tf-idf matrix
+    # Need a summary tf-idf matrix
 
     # Title
-    ## Need a title tf-idf matrix or edit-distnace?
+    # Need a title tf-idf matrix or edit-distnace?
 
     # Sentiment
-    ## 
+    ##
 
     # Speaker
-    ## Check og_ds[_]['speaker']['name'] and og_ds[_]['speaker']['occupation']
-    ### og_ds[_]['speaker']['name']: Check if speakers are the same
-    ### og_ds[_]['speaker']['occupation']: Check edit distance
+    # Check og_ds[_]['speaker']['name'] and og_ds[_]['speaker']['occupation']
+    # og_ds[_]['speaker']['name']: Check if speakers are the same
+    # og_ds[_]['speaker']['occupation']: Check edit distance
 
     return (cosine_sim * w_transcript) + (w_summary) + (w_title) + (w_sentiment) + (w_speaker)
+
 
 def build_ted_talks_sims_cos(n, movie_index_to_name, input_doc_mat, movie_name_to_index):
     """Returns a ret_mat matrix of size (n,n) where for (i,j):
         [i,j] should be the similarity between the TED Talk with index i and the TED Talk with index j
-        
+
     Note: You should set values on the diagonal to 1
     to indicate that all TED Talks are trivially perfectly similar to themselves.
-    
+
     Params: {n: Integer, the number of movies
              movie_index_to_name: Dictionary, a dictionary that maps movie index to name
              input_doc_mat: Numpy Array, a numpy array that represents the document-term matrix
@@ -69,22 +73,25 @@ def build_ted_talks_sims_cos(n, movie_index_to_name, input_doc_mat, movie_name_t
     ret_mat = np.zeros((n, n))
 
     for i in range(n):
-      t1 = movie_index_to_name[i]
-      for j in range(i+1):
-        if i == j:
-          ret_mat[i, j] = 1
-        else:
-          t2 = movie_index_to_name[j]
-          score = ted_talks_sim(t1, t2, input_doc_mat, movie_name_to_index)
-          ret_mat[i, j] = ret_mat[j, i] = score
+        t1 = movie_index_to_name[i]
+        for j in range(i+1):
+            if i == j:
+                ret_mat[i, j] = 1
+            else:
+                t2 = movie_index_to_name[j]
+                score = ted_talks_sim(
+                    t1, t2, input_doc_mat, movie_name_to_index)
+                ret_mat[i, j] = ret_mat[j, i] = score
 
     return ret_mat
 
 # THIS SHOULDNT WORK
+
+
 def get_rankings(talk, matrix, index):
     """Returns a list of the most similar TED Talks to the
         inputted TED Talk.
-    
+
     Parameters
     ----------
     movs : str list (Length >= 2)
@@ -109,7 +116,8 @@ def get_rankings(talk, matrix, index):
 
     # Get list of similarity scores for movie
     score_lst = matrix[mov_idx]
-    cos_sim_mat = [(index[i], s) for i,s in enumerate(score_lst)] # Pause. index[i] gets the index from the movie name (see line 105)
+    # Pause. index[i] gets the index from the movie name (see line 105)
+    cos_sim_mat = [(index[i], s) for i, s in enumerate(score_lst)]
 
     # Do not account for movie itself in ranking
     cos_sim_mat = cos_sim_mat[:mov_idx] + cos_sim_mat[mov_idx+1:]

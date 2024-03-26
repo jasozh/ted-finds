@@ -9,9 +9,9 @@ import numpy as np
 import time
 import helpers.BuildMatrix as bm
 
-# ROOT_PATH for linking with all your files. 
+# ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
-os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
+os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
 # Get the directory of the current script
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -51,21 +51,27 @@ app = Flask(__name__)
 CORS(app)
 
 # Sample search using json with pandas
+
+
 def json_search(query):
     matches = []
-    merged_df = pd.merge(episodes_df, reviews_df, left_on='id', right_on='id', how='inner')
-    matches = merged_df[merged_df['title'].str.lower().str.contains(query.lower())]
+    merged_df = pd.merge(episodes_df, reviews_df,
+                         left_on='id', right_on='id', how='inner')
+    matches = merged_df[merged_df['title'].str.lower(
+    ).str.contains(query.lower())]
     matches_filtered = matches[['title', 'descr', 'imdb_rating']]
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
 
+
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
-    with open(p1, 'r') as json_file:    
+    p3 = os.path.join(current_directory,
+                      'helpers/cosine_similarity_matrix.npy')
+    with open(p1, 'r') as json_file:
         docname_to_idx = json.load(json_file)
-    with open(p2, 'r') as json_file:    
+    with open(p2, 'r') as json_file:
         inv = json.load(json_file)
     matrix = np.load(p3)
     return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
@@ -80,7 +86,8 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
 
     # Find smallest 5 edit distance
     n = titles.size
-    edit_distance_arr = np.zeros(n) # (i, val) = (df index, edit distance to q)
+    # (i, val) = (df index, edit distance to q)
+    edit_distance_arr = np.zeros(n)
     for i in range(n):
         d = titles.iloc[i].lower()
         edit_distance_arr[i] = edit_distance(q, d)
@@ -96,6 +103,7 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
 
     return result
 
+
 @app.route("/")
 @app.route("/search")
 def home():
@@ -106,6 +114,7 @@ def home():
         search_query = ""
         autocomplete = [(title, "") for title in titles[:5]]
     return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
+
 
 @app.route("/results")
 def results():
@@ -130,6 +139,7 @@ def results():
 
     return render_template('results.html', title="Results", search_query=search_query, data=data)
 
+
 @app.route("/video")
 def video():
     video_title = request.args.get('w')
@@ -147,6 +157,7 @@ def video():
     ]
     return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
 
+
 @app.route("/example")
 def example():
     return render_template('example.html', title="Example")
@@ -157,5 +168,6 @@ def episodes_search():
     text = request.args.get("title")
     return json_search(text)
 
+
 if 'DB_NAME' not in os.environ:
-    app.run(debug=True,host="0.0.0.0",port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)
