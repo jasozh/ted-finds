@@ -134,7 +134,7 @@ def results():
 def video():
     video_title = request.args.get('w')
     data = df[df["title"] == video_title].iloc[0]
-    related_videos = []
+    related_videos = df.head(10)
     positive_comments = [
         "Positive Comment 1 from YouTube...",
         "Positive Comment 2 from YouTube...",
