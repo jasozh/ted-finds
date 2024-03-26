@@ -7,6 +7,7 @@ from helpers.edit_distance import *
 import pandas as pd
 import numpy as np
 import time
+import helpers.BuildMatrix as bm
 
 # ROOT_PATH for linking with all your files. 
 # Feel free to use a config.py or settings.py with a global export variable
@@ -40,8 +41,11 @@ with open(json_file_path, 'r') as file:
         "youtube_video_code" 
         "comments" 
     """
-    df = pd.read_json(file)
+    df = pd.read_json(file).head(500)
     titles = df["title"]
+
+    df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
+    df['topics'] = df['topics'].apply(lambda x: json.loads(x))
 
 app = Flask(__name__)
 CORS(app)
@@ -54,6 +58,18 @@ def json_search(query):
     matches_filtered = matches[['title', 'descr', 'imdb_rating']]
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
+
+def get_top_10_for_query(query):
+    p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
+    p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
+    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
+    with open(p1, 'r') as json_file:    
+        docname_to_idx = json.load(json_file)
+    with open(p2, 'r') as json_file:    
+        inv = json.load(json_file)
+    matrix = np.load(p3)
+    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     """
@@ -94,8 +110,13 @@ def home():
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
-    data = df[df["title"] == search_query]
-    
+
+    results = get_top_10_for_query(search_query)
+
+    titles = [result[0] for result in results]
+
+    data = df[df["title"].isin(titles)]
+
     # data = [{
     #     'title': ['Presentation 1'],
     #     'page_url': ['https://example.com/1'],
