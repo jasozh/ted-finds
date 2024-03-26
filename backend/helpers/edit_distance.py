@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def edit_distance(query, text, del_cost=1, ins_cost=1, sub_cost=2) -> float:
     arr = np.zeros((len(query) + 1, len(text) + 1))
     for i in range(len(query) + 1):

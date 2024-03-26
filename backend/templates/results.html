@@ -52,7 +52,11 @@
 
     <h3 id="jump-exp">Top Results:</h3>
     {% for result in data.iloc %}
-    <div class="block" onclick="onClick('{{search_query}}')" style="cursor: pointer;">
+    <div
+      class="block"
+      onclick="onClick('{{search_query}}')"
+      style="cursor: pointer"
+    >
       <h2 id="jump-exp">{{ result.title }}</h2>
       <br />
       <p><strong>Summary:</strong> {{ result.summary }} <br /></p>
