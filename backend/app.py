@@ -116,7 +116,6 @@ def results():
     titles = [result[0] for result in results]
 
     data = df[df["title"].isin(titles)]
-    #data = {'results': df.to_dict(orient='records')}
 
     # data = [{
     #     'title': ['Presentation 1'],
