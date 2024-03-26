@@ -1,15 +1,65 @@
-!doctype html>
-<title>{{title}}</title>
-<link rel="stylesheet" href="{{ url_for('static', filename='video.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-    rel="stylesheet">
-
-<body>
-    <div>
-        <h1>This is a Video page</h1>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>{{ title }}</title>
+    <link
+      rel="stylesheet"
+      href="{{ url_for('static', filename='video.css') }}"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="video-main-container">
+      <iframe
+        id="main-video"
+        width="560"
+        height="315"
+        src="https://www.youtube.com/embed/{{ data.youtube_video_code }}"
+        frameborder="0"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+        allowfullscreen
+      >
+      </iframe>
+      <h1 id="main-video-title">{{ data.title }}</h1>
+      <p id="main-video-description">{{ data.summary }}</p>
     </div>
-    <script>
-    </script>
-</body>
+
+    <div class="comments-container">
+      <div class="comments-column" id="positive-comments-column">
+        <h2>Positive Comments</h2>
+        {% for comment in positive_comments %}
+        <div class="comment">{{ comment }}</div>
+        {% endfor %}
+      </div>
+      <div class="comments-column" id="negative-comments-column">
+        <h2>Negative Comments</h2>
+        {% for comment in negative_comments %}
+        <div class="comment">{{ comment }}</div>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="video-list-container" id="video-list-container">
+      <h2>Recommended Videos</h2>
+      <div class="grid-container" id="recommended-videos-grid">
+        {% for video in related_videos.iloc %}
+        <div class="video-item">
+          <iframe
+            src="https://www.youtube.com/embed/{{ video.youtube_video_code }}"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <h3 class="video-title">{{ video.title }}</h3>
+          <p class="video-description">{{ video.summary }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </body>
+</html>

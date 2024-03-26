@@ -128,11 +128,24 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", data=data)
+    return render_template('results.html', title="Results", search_query=search_query, data=data)
 
 @app.route("/video")
 def video():
-    return render_template('video.html', title="Video")
+    video_title = request.args.get('w')
+    data = df[df["title"] == video_title].iloc[0]
+    related_videos = df.head(10)
+    positive_comments = [
+        "Positive Comment 1 from YouTube...",
+        "Positive Comment 2 from YouTube...",
+        "Positive Comment 3 from YouTube...",
+    ]
+    negative_comments = [
+        "Negative Comment 1 from YouTube...",
+        "Negative Comment 2 from YouTube...",
+        "Negative Comment 3 from YouTube...",
+    ]
+    return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
 
 @app.route("/example")
 def example():
