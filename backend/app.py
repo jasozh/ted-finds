@@ -123,8 +123,20 @@ def results():
     results = get_top_10_for_query(search_query)
 
     titles = [result[0] for result in results]
+    print(len(titles))
+    titles_scores_dict = dict(results)
 
     data = df[df["title"].isin(titles)]
+
+    # Create new column
+    data["cosine_similarity"] = [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1]
+    print(titles_scores_dict)
+    for i, video in data.iterrows():
+        title = video["title"]
+        data.loc[i, "cosine_similarity"] = titles_scores_dict[title]
+
+    # Sort data by cosine_similarity in descending order
+    sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
     # data = [{
     #     'title': ['Presentation 1'],
@@ -137,7 +149,7 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", search_query=search_query, data=data)
+    return render_template('results.html', title="Results", search_query=search_query, data=sorted_data)
 
 
 @app.route("/video")
