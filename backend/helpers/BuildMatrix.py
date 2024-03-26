@@ -41,7 +41,6 @@ def create_ranked_good_types(
     return tup_list#sorted_tups
 
 def create_word_occurrence_matrix(
-    tokenize_method,
     input_transcripts,
     input_good_types):
 
@@ -54,8 +53,8 @@ def create_word_occurrence_matrix(
     for idx, word in enumerate(input_good_types):
         word_idx[idx] = word
 
-    for idx, transcript, _ in input_transcripts:
-        tokens = tokenize_method(transcript)
+    for idx, _, _, tokenized in input_transcripts:
+        tokens = tokenized
         arr = np.zeros(len(input_good_types))
         for word_index in word_idx:
             good_word = word_idx[word_index]
@@ -69,18 +68,18 @@ def df_to_word_occ_mat(df):
     list_of_tuples = []
 
     for idx, row in df.iterrows():
-        list_of_tuples.append((idx, row['transcript'], row['title']))
+        list_of_tuples.append((idx, row['summary'], row['title'], tokenize_transcript(tokenize, row['transcript'])))
 
     counts = types_counts(list_of_tuples)
 
     filtered_counts = {}
     for word in counts:
-        if (counts[word] < 500):
+        if (counts[word] < 5000):
             filtered_counts[word] = counts[word]
     print(len(filtered_counts))
 
     #good_types = create_ranked_good_types(tokenize, tokenize_transcript, list_of_tuples, filtered_counts)
-    docname_to_idx, word_occ_mat = create_word_occurrence_matrix(tokenize, list_of_tuples, filtered_counts)
+    docname_to_idx, word_occ_mat = create_word_occurrence_matrix(list_of_tuples, filtered_counts)
 
     return docname_to_idx, word_occ_mat
 
@@ -96,6 +95,8 @@ def get_sim(talk1, talk2, input_doc_mat, input_movie_name_to_index):
 
     denom = np.linalg.norm(m1) * np.linalg.norm(m2)
 
+    if denom == 0:
+        return 0
     return num/denom
 
 def build_ted_talks_sims_cos(n, movie_index_to_name, input_doc_mat, movie_name_to_index):
@@ -143,7 +144,6 @@ def load_data():
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
         df = pd.json_normalize(data)
-        df = df.head(500)
     docname_to_idx, word_occ_mat = df_to_word_occ_mat(df)
     return docname_to_idx, word_occ_mat
 
@@ -157,7 +157,6 @@ def build_similarity_matrix():
         input_doc_mat=word_occ_mat, 
         movie_name_to_index=docname_to_idx)
     print("Done Building Matrix")
-    #print(get_rankings("Meet the founder of the blog revolution", matrix, docname_to_idx, inv))
     np.save("cosine_similarity_matrix", matrix)
     with open("idx_to_docnames", 'w') as json_file:
         json.dump(inv, json_file)
@@ -169,5 +168,14 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open("idx_to_docnames", 'r') as json_file:    
         inv = json.load(json_file)
-    matrix = np.load("cosine_similarity_matrix.npy")
+    # Load the four parts from the .npy files
+    part1 = np.load('part1.npy')
+    part2 = np.load('part2.npy')
+    part3 = np.load('part3.npy')
+    part4 = np.load('part4.npy')
+
+    # Concatenate the parts to reconstruct the original matrix
+    top = np.concatenate((part1, part2), axis=1)
+    bottom = np.concatenate((part3, part4), axis=1)
+    matrix = np.concatenate((top, bottom), axis=0)
     return get_rankings(query, matrix, docname_to_idx, inv)[:10]
