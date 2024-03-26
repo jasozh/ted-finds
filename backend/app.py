@@ -44,6 +44,9 @@ with open(json_file_path, 'r') as file:
     df = pd.read_json(file).head(500)
     titles = df["title"]
 
+    df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
+    df['topics'] = df['topics'].apply(lambda x: json.loads(x))
+
 app = Flask(__name__)
 CORS(app)
 
@@ -55,6 +58,18 @@ def json_search(query):
     matches_filtered = matches[['title', 'descr', 'imdb_rating']]
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
+
+def get_top_10_for_query(query):
+    p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
+    p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
+    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
+    with open(p1, 'r') as json_file:    
+        docname_to_idx = json.load(json_file)
+    with open(p2, 'r') as json_file:    
+        inv = json.load(json_file)
+    matrix = np.load(p3)
+    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     """
@@ -91,20 +106,6 @@ def home():
         search_query = ""
         autocomplete = [(title, "") for title in titles[:5]]
     return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
-
-def get_top_10_for_query(query):
-    p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
-    p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
-    with open(p1, 'r') as json_file:    
-        docname_to_idx = json.load(json_file)
-    with open(p2, 'r') as json_file:    
-        inv = json.load(json_file)
-    matrix = np.load(p3)
-    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
-
-df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
-df['topics'] = df['topics'].apply(lambda x: json.loads(x))
 
 @app.route("/results")
 def results():
