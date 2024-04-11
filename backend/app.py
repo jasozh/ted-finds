@@ -70,22 +70,19 @@ def get_top_10_for_query(query):
     #p3 = os.path.join(current_directory,
     #                  'helpers/cosine_similarity_matrix.npy')
     
-    part1 = np.load(os.path.join(current_directory, 'helpers/part1.npy'))
-    part2 = np.load(os.path.join(current_directory, 'helpers/part2.npy'))
-    part3 = np.load(os.path.join(current_directory, 'helpers/part3.npy'))
-    part4 = np.load(os.path.join(current_directory, 'helpers/part4.npy'))
-
-    # Concatenate the parts to reconstruct the original matrix
-    top = np.concatenate((part1, part2), axis=1)
-    bottom = np.concatenate((part3, part4), axis=1)
-    matrix = np.concatenate((top, bottom), axis=0)
+    loaded_chunks = []
+    for i in range(6):
+        filename = f'helpers/chunk_{i}.npy'
+        loaded_chunk = np.load(filename)
+        loaded_chunks.append(loaded_chunk)
+    sim_matrix = np.concatenate(loaded_chunks)
 
     with open(p1, 'r') as json_file:
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
     #matrix = np.load(p3)
-    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
 
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
