@@ -67,9 +67,9 @@ def json_search(query):
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    #p3 = os.path.join(current_directory,
+    # p3 = os.path.join(current_directory,
     #                  'helpers/cosine_similarity_matrix.npy')
-    
+
     loaded_chunks = []
     for i in range(6):
         filename = f'helpers/chunk_{i}.npy'
@@ -81,7 +81,7 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
-    #matrix = np.load(p3)
+    # matrix = np.load(p3)
     return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
 
 
@@ -141,7 +141,8 @@ def results():
     print(titles_scores_dict)
     for i, video in data.iterrows():
         title = video["title"]
-        data.loc[i, "cosine_similarity"] = round(titles_scores_dict[title]*100, 2)
+        data.loc[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
 
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
