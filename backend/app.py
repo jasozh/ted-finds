@@ -169,7 +169,7 @@ def video():
     print("testtest")
     data = df[df["_id"] == video_id].iloc[0]
 
-    #Cosine Similarity
+    # Cosine Similarity
     related_videos = get_top_10_for_query(data.title)
 
     titles = [related_video[0] for related_video in related_videos]
@@ -177,14 +177,16 @@ def video():
 
     related_videos = df[df["title"].isin(titles)]
 
-    related_videos["cosine_similarity"] = [-1 for _ in range(len(related_videos))]
+    related_videos["cosine_similarity"] = [
+        -1 for _ in range(len(related_videos))]
     print(titles_scores_dict)
     for i, video in related_videos.iterrows():
         title = video["title"]
         related_videos.loc[i, "cosine_similarity"] = round(
             titles_scores_dict[title]*100, 2)
 
-    sorted_related_videos = related_videos.sort_values(by="cosine_similarity", ascending=False)
+    sorted_related_videos = related_videos.sort_values(
+        by="cosine_similarity", ascending=False)
 
     # Get comments
     comments = json.loads(data.comments)
