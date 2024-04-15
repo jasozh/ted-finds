@@ -103,7 +103,8 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     top_5_indices = np.argsort(sim_arr)[:5]
 
     # Return as list
-    result = [(titles.iloc[i], sim_arr[i]) for i in top_5_indices if sim_arr[i] != float('inf')]
+    result = [(titles.iloc[i], sim_arr[i])
+              for i in top_5_indices if sim_arr[i] != float('inf')]
 
     # Measure performance
     end_time = time.time()

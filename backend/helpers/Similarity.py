@@ -11,6 +11,7 @@ def jaccard(query, doc):
 def jaccard_mat(query, docs):
     return
 
+
 def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
     query_set = set(query.lower().split())
     doc_set = set(doc.lower().split())
