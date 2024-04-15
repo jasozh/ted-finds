@@ -4,6 +4,7 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from helpers.edit_distance import *
+from helpers.Similarity import combined_jaccard_edit_distance
 import pandas as pd
 import numpy as np
 import time
@@ -98,14 +99,14 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     # Find smallest 5 edit distance
     n = titles.size
     # (i, val) = (df index, edit distance to q)
-    edit_distance_arr = np.zeros(n)
+    sim_arr = np.zeros(n)
     for i in range(n):
         d = titles.iloc[i].lower()
-        edit_distance_arr[i] = edit_distance(q, d)
-    top_5_indices = np.argsort(edit_distance_arr)[:5]
+        sim_arr[i] = combined_jaccard_edit_distance(q, d)
+    top_5_indices = np.argsort(sim_arr)[:5]
 
     # Return as list
-    result = [(titles.iloc[i], edit_distance_arr[i]) for i in top_5_indices]
+    result = [(titles.iloc[i], sim_arr[i]) for i in top_5_indices if sim_arr[i] != float('inf')]
 
     # Measure performance
     end_time = time.time()
