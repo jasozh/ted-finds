@@ -166,7 +166,6 @@ def results():
 @app.route("/video")
 def video():
     video_id = int(request.args.get('w'))
-    print("testtest")
     data = df[df["_id"] == video_id].iloc[0]
 
     # Cosine Similarity
