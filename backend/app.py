@@ -23,23 +23,23 @@ json_file_path = os.path.join(current_directory, 'init.json')
 with open(json_file_path, 'r') as file:
     """
     Creates a Pandas DataFrame with the following keys for each TED Talk:
-        "_id" 
-        "duration" 
-        "event" 
-        "likes" 
-        "page_url" 
-        "published_date" 
-        "recorded_date" 
-        "related_videos" 
-        "speakers" 
-        "subtitle_languages" 
-        "summary" 
-        "title" 
-        "topics" 
-        "transcript" 
-        "views" 
-        "youtube_video_code" 
-        "comments" 
+        "_id"
+        "duration"
+        "event"
+        "likes"
+        "page_url"
+        "published_date"
+        "recorded_date"
+        "related_videos"
+        "speakers"
+        "subtitle_languages"
+        "summary"
+        "title"
+        "topics"
+        "transcript"
+        "views"
+        "youtube_video_code"
+        "comments"
     """
     df = pd.read_json(file)
     titles = df["title"]
@@ -163,28 +163,44 @@ def results():
 
 @app.route("/video")
 def video():
-    video_title = request.args.get('w')
-    data = df[df["title"] == video_title].iloc[0]
+    video_id = int(request.args.get('w'))
+    data = df[df["_id"] == video_id].iloc[0]
     related_videos = df.head(10)
-    positive_comments = [
-        "Positive Comment 1 from YouTube...",
-        "Positive Comment 2 from YouTube...",
-        "Positive Comment 3 from YouTube...",
-    ]
-    negative_comments = [
-        "Negative Comment 1 from YouTube...",
-        "Negative Comment 2 from YouTube...",
-        "Negative Comment 3 from YouTube...",
-    ]
+
+    comments = json.loads(data.comments)
+    print(comments[0]["body"])
+
+    positive_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] > 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    negative_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] < 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    # positive_comments = [
+    #     "Positive Comment 1 from YouTube...",
+    #     "Positive Comment 2 from YouTube...",
+    #     "Positive Comment 3 from YouTube...",
+    # ]
+    # negative_comments = [
+    #     "Negative Comment 1 from YouTube...",
+    #     "Negative Comment 2 from YouTube...",
+    #     "Negative Comment 3 from YouTube...",
+    # ]
     return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
 
 
-@app.route("/example")
+@ app.route("/example")
 def example():
     return render_template('example.html', title="Example")
 
 
-@app.route("/episodes")
+@ app.route("/episodes")
 def episodes_search():
     text = request.args.get("title")
     return json_search(text)

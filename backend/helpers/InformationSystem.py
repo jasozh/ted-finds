@@ -6,6 +6,13 @@ from googleapiclient.discovery import build
 from dotenv import load_dotenv
 import BuildMatrix
 
+import nltk
+from nltk.sentiment.vader import SentimentIntensityAnalyzer
+from nltk.corpus import stopwords
+from nltk.tokenize import word_tokenize
+from nltk.stem import WordNetLemmatizer
+
+
 # Load .env files
 load_dotenv()
 API_KEY = MY_ENV_VAR = os.getenv('API_KEY')
@@ -114,17 +121,89 @@ def preprocess_data() -> None:
         comment_likes: int,
         body: str
       }
+
+    NOTE: for full preprocessing: run in order
+    - preprocess_data()
+    - fix_preprocess_data()
+    - preprocess_sentiment_analysis()
+    - fix_preprocess_data()
     """
-    ted_talks = pd.read_csv("static/data/talks_info.csv")
+    ted_talks = pd.read_csv("../static/data/talks_info.csv")
     ted_talks['comments'] = ted_talks['youtube_video_code'].apply(
         func=get_video_comments)
     ted_talks['likes_int'] = ted_talks['likes'].apply(convert_likes_to_int)
     ted_talks.to_csv("talks_info_final.csv")
 
 
-def sentiment_analysis(review: str) -> bool:
+def fix_preprocess_data() -> None:
     """
-    Given a review, returns True if the review has a positive sentiment and
-    False if the review has a negative sentiment
+    Comments are not in JSON format when created with preprocess_data. This
+    function manually goes through and fixes that.
     """
-    pass
+    ted_talks = pd.read_csv("../static/data/talks_info_sentiment_final.csv")
+
+    for i in range(len(ted_talks)):
+        comment = ted_talks.iloc[i]["comments"]
+        modified_comment = comment.replace("'", '"')
+        ted_talks.at[i, "comments"] = modified_comment
+
+    ted_talks.to_csv("talks_info_final.csv")
+
+
+def preprocess_sentiment_analysis() -> None:
+    """
+    Updates talks_info_final.csv with sentiment scores for every comment.
+    """
+    nltk.download("punkt")
+    nltk.download("stopwords")
+    nltk.download("wordnet")
+    nltk.download('vader_lexicon')
+
+    # Load CSV file as pandas dataframe
+    ted_talks = pd.read_csv("../static/data/talks_info_final.csv")
+
+    # Load nltk sentiment analzyer
+    analyzer = SentimentIntensityAnalyzer()
+
+    print(ted_talks.iloc[0].comments)
+
+    # Do sentiment analysis on the comments
+    for i in range(len(ted_talks)):
+        try:
+            comments_as_str = ted_talks.iloc[i].comments
+            comments = json.loads(comments_as_str)
+
+            for comment in comments:
+                # Preprocess, tokenize, remove stop words, lemmatize, and combine
+                text = comment["body"]
+                tokens = word_tokenize(text.lower())
+                filtered_tokens = [
+                    token for token in tokens if token not in stopwords.words('english')]
+                lemmatizer = WordNetLemmatizer()
+                lemmatized_tokens = [lemmatizer.lemmatize(
+                    token) for token in filtered_tokens]
+                processed_text = ' '.join(lemmatized_tokens)
+
+                # Get aggregate Vader score as sentiment
+                sentiment = analyzer.polarity_scores(processed_text)[
+                    "compound"]
+
+                # Add sentiment to comment dict
+                comment["sentiment"] = sentiment
+
+                # Debug
+                # print(text)
+                # print(processed_text)
+                # print(sentiment)
+                # print(comment)
+                # print("\n")
+
+            # Update comments column in dataframe
+            # print(comment)
+            ted_talks.at[i, "comments"] = comments
+        except:
+            pass
+            # print(f"Skipped row {i}")
+            # print(ted_talks.iloc[0].comments)
+
+    ted_talks.to_csv("talks_info_sentiment_final.csv", quotechar='"')

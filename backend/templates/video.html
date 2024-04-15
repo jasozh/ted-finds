@@ -31,15 +31,25 @@
 
     <div class="comments-container">
       <div class="comments-column" id="positive-comments-column">
-        <h2>Positive Comments</h2>
+        <h2>Top Positive Comments</h2>
         {% for comment in positive_comments %}
-        <div class="comment">{{ comment }}</div>
+        <div class="comment">
+          <p>{{ comment.username }}</p>
+          <p>Likes: {{ comment.comment_likes }}</p>
+          <p>Sentiment: {{ comment.sentiment }}</p>
+          <p>{{ comment.body }}</p>
+        </div>
         {% endfor %}
       </div>
       <div class="comments-column" id="negative-comments-column">
-        <h2>Negative Comments</h2>
+        <h2>Top Negative Comments</h2>
         {% for comment in negative_comments %}
-        <div class="comment">{{ comment }}</div>
+        <div class="comment">
+          <p>{{ comment.username }}</p>
+          <p>Likes: {{ comment.comment_likes }}</p>
+          <p>Sentiment: {{ comment.sentiment }}</p>
+          <p>{{ comment.body }}</p>
+        </div>
         {% endfor %}
       </div>
     </div>
