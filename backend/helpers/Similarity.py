@@ -1,12 +1,26 @@
 import numpy as np
+from helpers.edit_distance import *
 
 
 def jaccard(query, doc):
-    return
+    intersection = query.intersection(doc)
+    union = query.union(doc)
+    return len(intersection) / len(union) if union else 0
 
 
 def jaccard_mat(query, docs):
     return
+
+
+def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
+    query_set = set(query.lower().split())
+    doc_set = set(doc.lower().split())
+    j = jaccard(query_set, doc_set)
+
+    if j >= jaccard_threshold:
+        edit_dist = edit_distance(query, doc)
+        return edit_dist
+    return float('inf')
 
 
 def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript=1.0, w_summary=0.0, w_title=0.0, w_sentiment=0.0, w_speaker=0.0):
