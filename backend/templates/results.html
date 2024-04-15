@@ -54,7 +54,7 @@
     {% for result in data.iloc %}
     <div
       class="block"
-      onclick="onClick('{{search_query}}')"
+      onclick="onClick('{{ result.title }}')"
       style="cursor: pointer"
     >
       <h2 id="jump-exp">{{ result.title }}</h2>
