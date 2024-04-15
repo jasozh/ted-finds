@@ -72,7 +72,7 @@ def get_top_10_for_query(query):
 
     loaded_chunks = []
     for i in range(6):
-        filename = f'backend/helpers/chunk_{i}.npy'
+        filename = os.path.join(current_directory, f'helpers/chunk_{i}.npy')
         loaded_chunk = np.load(filename)
         loaded_chunks.append(loaded_chunk)
     sim_matrix = np.concatenate(loaded_chunks)
