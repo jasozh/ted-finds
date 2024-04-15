@@ -167,8 +167,27 @@ def results():
 def video():
     video_id = int(request.args.get('w'))
     data = df[df["_id"] == video_id].iloc[0]
-    related_videos = df.head(10)
 
+    # Cosine Similarity
+    related_videos = get_top_10_for_query(data.title)
+
+    titles = [related_video[0] for related_video in related_videos]
+    titles_scores_dict = dict(related_videos)
+
+    related_videos = df[df["title"].isin(titles)]
+
+    related_videos["cosine_similarity"] = [
+        -1 for _ in range(len(related_videos))]
+    print(titles_scores_dict)
+    for i, video in related_videos.iterrows():
+        title = video["title"]
+        related_videos.loc[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
+
+    sorted_related_videos = related_videos.sort_values(
+        by="cosine_similarity", ascending=False)
+
+    # Get comments
     comments = json.loads(data.comments)
     print(comments[0]["body"])
 
@@ -194,7 +213,7 @@ def video():
     #     "Negative Comment 2 from YouTube...",
     #     "Negative Comment 3 from YouTube...",
     # ]
-    return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
+    return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
 
 
 @ app.route("/example")
