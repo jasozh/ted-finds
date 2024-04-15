@@ -24,23 +24,23 @@ json_file_path = os.path.join(current_directory, 'init.json')
 with open(json_file_path, 'r') as file:
     """
     Creates a Pandas DataFrame with the following keys for each TED Talk:
-        "_id" 
-        "duration" 
-        "event" 
-        "likes" 
-        "page_url" 
-        "published_date" 
-        "recorded_date" 
-        "related_videos" 
-        "speakers" 
-        "subtitle_languages" 
-        "summary" 
-        "title" 
-        "topics" 
-        "transcript" 
-        "views" 
-        "youtube_video_code" 
-        "comments" 
+        "_id"
+        "duration"
+        "event"
+        "likes"
+        "page_url"
+        "published_date"
+        "recorded_date"
+        "related_videos"
+        "speakers"
+        "subtitle_languages"
+        "summary"
+        "title"
+        "topics"
+        "transcript"
+        "views"
+        "youtube_video_code"
+        "comments"
     """
     df = pd.read_json(file)
     titles = df["title"]
@@ -68,25 +68,22 @@ def json_search(query):
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    #p3 = os.path.join(current_directory,
+    # p3 = os.path.join(current_directory,
     #                  'helpers/cosine_similarity_matrix.npy')
-    
-    part1 = np.load(os.path.join(current_directory, 'helpers/part1.npy'))
-    part2 = np.load(os.path.join(current_directory, 'helpers/part2.npy'))
-    part3 = np.load(os.path.join(current_directory, 'helpers/part3.npy'))
-    part4 = np.load(os.path.join(current_directory, 'helpers/part4.npy'))
 
-    # Concatenate the parts to reconstruct the original matrix
-    top = np.concatenate((part1, part2), axis=1)
-    bottom = np.concatenate((part3, part4), axis=1)
-    matrix = np.concatenate((top, bottom), axis=0)
+    loaded_chunks = []
+    for i in range(6):
+        filename = os.path.join(current_directory, f'helpers/chunk_{i}.npy')
+        loaded_chunk = np.load(filename)
+        loaded_chunks.append(loaded_chunk)
+    sim_matrix = np.concatenate(loaded_chunks)
 
     with open(p1, 'r') as json_file:
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
-    #matrix = np.load(p3)
-    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+    # matrix = np.load(p3)
+    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
 
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
@@ -145,7 +142,8 @@ def results():
     print(titles_scores_dict)
     for i, video in data.iterrows():
         title = video["title"]
-        data.loc[i, "cosine_similarity"] = round(titles_scores_dict[title]*100, 2)
+        data.loc[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
 
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
@@ -166,28 +164,44 @@ def results():
 
 @app.route("/video")
 def video():
-    video_title = request.args.get('w')
-    data = df[df["title"] == video_title].iloc[0]
+    video_id = int(request.args.get('w'))
+    data = df[df["_id"] == video_id].iloc[0]
     related_videos = df.head(10)
-    positive_comments = [
-        "Positive Comment 1 from YouTube...",
-        "Positive Comment 2 from YouTube...",
-        "Positive Comment 3 from YouTube...",
-    ]
-    negative_comments = [
-        "Negative Comment 1 from YouTube...",
-        "Negative Comment 2 from YouTube...",
-        "Negative Comment 3 from YouTube...",
-    ]
+
+    comments = json.loads(data.comments)
+    print(comments[0]["body"])
+
+    positive_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] > 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    negative_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] < 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    # positive_comments = [
+    #     "Positive Comment 1 from YouTube...",
+    #     "Positive Comment 2 from YouTube...",
+    #     "Positive Comment 3 from YouTube...",
+    # ]
+    # negative_comments = [
+    #     "Negative Comment 1 from YouTube...",
+    #     "Negative Comment 2 from YouTube...",
+    #     "Negative Comment 3 from YouTube...",
+    # ]
     return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
 
 
-@app.route("/example")
+@ app.route("/example")
 def example():
     return render_template('example.html', title="Example")
 
 
-@app.route("/episodes")
+@ app.route("/episodes")
 def episodes_search():
     text = request.args.get("title")
     return json_search(text)

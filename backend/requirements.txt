@@ -26,3 +26,5 @@ tzdata==2024.1
 Werkzeug==2.2.2
 python-dotenv
 google-api-python-client
+scikit-learn
+nltk
