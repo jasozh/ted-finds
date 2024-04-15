@@ -27,3 +27,4 @@ Werkzeug==2.2.2
 python-dotenv
 google-api-python-client
 scikit-learn
+nltk

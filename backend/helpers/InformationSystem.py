@@ -115,10 +115,25 @@ def preprocess_data() -> None:
         body: str
       }
     """
-    ted_talks = pd.read_csv("static/data/talks_info.csv")
+    ted_talks = pd.read_csv("../static/data/talks_info.csv")
     ted_talks['comments'] = ted_talks['youtube_video_code'].apply(
         func=get_video_comments)
     ted_talks['likes_int'] = ted_talks['likes'].apply(convert_likes_to_int)
+    ted_talks.to_csv("talks_info_final.csv")
+
+
+def fix_preprocess_data() -> None:
+    """
+    Comments are not in JSON format when created with preprocess_data. This
+    function manually goes through and fixes that.
+    """
+    ted_talks = pd.read_csv("../static/data/talks_info_final.csv")
+
+    for i in range(len(ted_talks)):
+        comment = ted_talks.iloc[i]["comments"]
+        modified_comment = comment.replace("'", '"')
+        ted_talks.at[i, "comments"] = modified_comment
+
     ted_talks.to_csv("talks_info_final.csv")
 
 

@@ -1,10 +1,10 @@
 import csv
 import json
 
-csv_file_path = 'static/data/talks_info_final.csv'
+csv_file_path = '../static/data/talks_info_final.csv'
 
 # Specify the path to the JSON file you want to overwrite
-json_file_path = 'init.json'
+json_file_path = '../init.json'
 
 # Read data from the CSV file and convert it to JSON format
 with open(csv_file_path, 'r') as csv_file:
