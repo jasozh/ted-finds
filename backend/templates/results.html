@@ -24,7 +24,9 @@
   <script>
     /** Handles clicking on a search autocomplete option */
     const onClick = (talk_title) => {
-      window.location.href = `/video?w=${talk_title}`;
+      const safe_title = encodeURIComponent(talk_title);
+      console.log(safe_title);
+      window.location.href = `/video?w=${safe_title}`;
     };
   </script>
   <nav class="navbar">
@@ -54,7 +56,7 @@
     {% for result in data.iloc %}
     <div
       class="block"
-      onclick="onClick('{{ result.title }}')"
+      onclick="onClick('{{result._id}}')"
       style="cursor: pointer"
     >
       <h2 id="jump-exp">{{ result.title }}</h2>
