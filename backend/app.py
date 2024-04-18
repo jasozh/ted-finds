@@ -188,8 +188,11 @@ def video():
         by="cosine_similarity", ascending=False)
 
     # Get comments
-    comments = json.loads(data.comments)
-    print(comments[0]["body"])
+    try:
+        comments = json.loads(data.comments)
+        print(comments[0]["body"])
+    except:
+        comments = {}
 
     positive_comments = sorted([
         comments[i]

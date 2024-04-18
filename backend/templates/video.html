@@ -32,23 +32,31 @@
     <div class="comments-container">
       <div class="comments-column" id="positive-comments-column">
         <h2>Top Positive Comments</h2>
-        {% for comment in positive_comments %}
+        {% if positive_comments|length == 0 %}
+        <div class="comment">
+          <p>There are no comments</p>
+        </div>
+        {% endif %} {% for comment in positive_comments %}
         <div class="comment">
           <p>{{ comment.username }}</p>
           <p>Likes: {{ comment.comment_likes }}</p>
           <p>Sentiment: {{ comment.sentiment }}</p>
-          <p>{{ comment.body }}</p>
+          <p>{{ comment.body | safe }}</p>
         </div>
         {% endfor %}
       </div>
       <div class="comments-column" id="negative-comments-column">
         <h2>Top Negative Comments</h2>
-        {% for comment in negative_comments %}
+        {% if negative_comments|length == 0 %}
+        <div class="comment">
+          <p>There are no comments</p>
+        </div>
+        {% endif %} {% for comment in negative_comments %}
         <div class="comment">
           <p>{{ comment.username }}</p>
           <p>Likes: {{ comment.comment_likes }}</p>
           <p>Sentiment: {{ comment.sentiment }}</p>
-          <p>{{ comment.body }}</p>
+          {{ comment.body | safe }}
         </div>
         {% endfor %}
       </div>
