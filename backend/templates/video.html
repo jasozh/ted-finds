@@ -41,7 +41,7 @@
           <p>{{ comment.username }}</p>
           <p>Likes: {{ comment.comment_likes }}</p>
           <p>Sentiment: {{ comment.sentiment }}</p>
-          <p>{{ comment.body }}</p>
+          <p>{{ comment.body | safe }}</p>
         </div>
         {% endfor %}
       </div>
@@ -56,7 +56,7 @@
           <p>{{ comment.username }}</p>
           <p>Likes: {{ comment.comment_likes }}</p>
           <p>Sentiment: {{ comment.sentiment }}</p>
-          <p>{{ comment.body }}</p>
+          {{ comment.body | safe }}
         </div>
         {% endfor %}
       </div>
