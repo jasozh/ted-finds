@@ -82,8 +82,23 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
+
+    dc_loaded_chunks = []
+    for i in range(6):
+        filename = os.path.join(current_directory, f'helpers/dc_chunk_{i}.npy')
+        dc_loaded_chunk = np.load(filename)
+        dc_loaded_chunks.append(dc_loaded_chunk)
+
+    dc_matrix = np.concatenate(dc_loaded_chunks)
+
+    with open(os.path.join(current_directory, 'helpers/categories'), 'r') as json_file:
+        idx_to_categories = json.load(json_file)
+
+    with open(os.path.join(current_directory, 'helpers/categories_inv'), 'r') as json_file:
+        categories_to_idx = json.load(json_file)
+
     # matrix = np.load(p3)
-    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
+    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, 10)
 
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
@@ -130,24 +145,32 @@ def home():
 def results():
     search_query = request.args.get('q')
 
-    results = get_top_10_for_query(search_query)
+    results, query_cat_scores = get_top_10_for_query(search_query)
 
     titles = [result[0] for result in results]
-    print(len(titles))
+    #print(len(titles))
     titles_scores_dict = dict(results)
+    #print(titles_scores_dict)
 
     data = df[df["title"].isin(titles)]
 
     # Create new column
     data["cosine_similarity"] = [-1 for _ in range(len(data))]
-    print(titles_scores_dict)
+    data["category_scores"] = [{}] * len(data)
+    #print(titles_scores_dict)
     for i, video in data.iterrows():
         title = video["title"]
-        data.loc[i, "cosine_similarity"] = round(
-            titles_scores_dict[title]*100, 2)
+        data.at[i, "cosine_similarity"] = round(
+            titles_scores_dict[title][0]*100, 2)
+        #data.loc[i, "category_scores"] = titles_scores_dict[title][1]
+        data.at[i, "category_scores"] = titles_scores_dict[title][1]
+
+    # dictionary of the form {1597: -0.033, 3356: -0.0952, 5614: -0.3411, ... } is stored in titles_scores_dict[title][1]
 
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
+
+    #print(query_cat_scores)
 
     # data = [{
     #     'title': ['Presentation 1'],
@@ -160,7 +183,7 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", search_query=search_query, data=sorted_data)
+    return render_template('results.html', title="Results", search_query=search_query, data=sorted_data, query_scores=query_cat_scores)
 
 
 @app.route("/video")
@@ -178,7 +201,7 @@ def video():
 
     related_videos["cosine_similarity"] = [
         -1 for _ in range(len(related_videos))]
-    print(titles_scores_dict)
+    #print(titles_scores_dict)
     for i, video in related_videos.iterrows():
         title = video["title"]
         related_videos.loc[i, "cosine_similarity"] = round(
