@@ -29,14 +29,6 @@
       window.location.href = `/video?w=${safe_title}`;
     };
   </script>
-  <nav class="navbar">
-    <ul>
-      <li>
-        <a href="results.html"><strong>BACK</strong></a>
-      </li>
-    </ul>
-  </nav>
-
   <div class="mainbox">
     <div class="box1">
       <img
@@ -52,7 +44,7 @@
 
     <hr />
 
-    <h3 id="jump-exp">Top Results:</h3>
+    <h3 id="jump-exp">Top Results</h3>
     {% for result in data.iloc %}
     <div
       class="block"
@@ -83,6 +75,7 @@
         <strong>Link:</strong>
         <a href="{{ result.page_url }}">{{ result.page_url }}</a>
       </p>
+      <br />
     </div>
 
     {% endfor %}

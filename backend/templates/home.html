@@ -69,6 +69,8 @@
             oninput="handleChange()"
             value="{{ query }}"
             style="
+              background: rgba(255, 255, 255, 0.1);
+              color: rgb(243 244 246);
               font-size: 1.2rem;
               width: 100%;
               padding-left: 1.5rem;
@@ -81,7 +83,8 @@
           />
           <button
             style="
-              background: white;
+              background: rgba(255, 255, 255, 0.1);
+              color: rgb(243 244 246);
               cursor: pointer;
               border-radius: 0 5rem 5rem 0;
               width: 4rem;
@@ -92,7 +95,13 @@
             <i style="font-size: 1.2rem" class="fa fa-search">&nbsp;</i>
           </button>
           <div style="position: absolute; margin-top: 3.9rem; width: 100%">
-            <div style="background: white; border-radius: 1rem; padding: 1rem">
+            <div
+              style="
+                background: rgba(255, 255, 255, 0.1);
+                border-radius: 1rem;
+                padding: 1rem;
+              "
+            >
               {% for title, score in autocomplete %}
               <div
                 id="{{ title }}"
