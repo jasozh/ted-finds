@@ -42,6 +42,7 @@ def prepare_data():
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
         talks = pd.json_normalize(data)
+        talks = talks[talks['transcript'] != '']
 
     # Get transcripts in one place
     documents = []
@@ -86,3 +87,6 @@ def get_top_10_for_query(query):
         inv = json.load(json_file)
 
     return get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
+
+if __name__ == '__main__':
+    prepare_data()

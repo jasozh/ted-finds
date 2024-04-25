@@ -43,6 +43,7 @@ with open(json_file_path, 'r') as file:
         "comments"
     """
     df = pd.read_json(file)
+    df = df[df['transcript'] != '']
     titles = df["title"]
 
     df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
