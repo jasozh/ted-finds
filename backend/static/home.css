@@ -6,8 +6,10 @@ body {
   padding: 0;
   line-height: 1.5;
   font-family: "Inter", sans-serif;
-  background-color: #8ec5fc;
-  background-image: linear-gradient(62deg, #8ec5fc 0%, #e0c3fc 100%);
+  background-color: rgb(38 38 38);
+  color: rgb(243 244 246);
+  /* background-color: #8ec5fc;
+  background-image: linear-gradient(62deg, #8ec5fc 0%, #e0c3fc 100%); */
 }
 
 input {
@@ -16,12 +18,13 @@ input {
 
 .autocomplete {
   padding: 0.5rem;
-  background: white;
+  /* background-color: rgb(38 38 38); */
+  /* background: rgba(255, 255, 255, 0.1); */
 }
 
 .autocomplete:hover {
   border-radius: 0.5rem;
   padding: 0.5rem;
-  background: #efefef;
+  background: rgba(255, 255, 255, 0.1);
   cursor: pointer;
 }
