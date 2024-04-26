@@ -102,7 +102,7 @@ def get_top_k(title, title_to_idx, sim_matrix, k=10):
     top_k_values = sim_matrix[idx][top_k_indices]
     return top_k_indices, top_k_values
 
-def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx):
+def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx, idx_to_categories):
 
     idxs = [docname_to_idx[name] for name in docs]
     c_idxs = [c for c in categories]
@@ -112,7 +112,7 @@ def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx):
     for doc in idxs:
         d = {}
         for c_idx in c_idxs:
-            d[c_idx] = dc_matrix[doc, c_idx]
+            d[idx_to_categories[str(c_idx)]] = dc_matrix[doc, c_idx]
         docs.append(d)
 
     return docs
@@ -127,7 +127,7 @@ def get_top_k_talks(title, title_to_idx, idx_to_title, sim_matrix, dc_matrix, id
     #tops =  [(idx_to_title[str(idx)], score) for (idx, score) in zip(top_k_indices, top_k_values)]
     docs = [idx_to_title[str(idx)] for idx in top_k_indices]
     categories = get_categories(title, dc_matrix, title_to_idx)
-    top_dc_scores = get_doc_category_scores(docs, categories, dc_matrix, title_to_idx)
+    top_dc_scores = get_doc_category_scores(docs, categories, dc_matrix, title_to_idx, idx_to_categories)
     #query_scores = [{idx_to_categories[str(cat)] : dc_matrix[title_to_idx[title], cat]} for cat in categories]
     query_scores = {}
     for cat in categories:

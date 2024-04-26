@@ -170,7 +170,8 @@ def results():
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
-    #print(query_cat_scores)
+    print(sorted_data.iloc[0]['category_scores'])
+    print(query_cat_scores)
 
     # data = [{
     #     'title': ['Presentation 1'],
