@@ -113,6 +113,7 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
 
     return result
 
+
 def simple_filter(search_query: str) -> list[tuple[str, int]]:
     """
     Filters the list of suggested titles based on edit distance
