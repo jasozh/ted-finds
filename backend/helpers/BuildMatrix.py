@@ -87,6 +87,3 @@ def get_top_10_for_query(query):
         inv = json.load(json_file)
 
     return get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
-
-if __name__ == '__main__':
-    prepare_data()
