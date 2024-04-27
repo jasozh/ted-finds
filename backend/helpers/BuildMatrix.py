@@ -4,9 +4,9 @@ import json
 from sklearn.preprocessing import normalize
 from scipy.sparse.linalg import svds
 from sklearn.feature_extraction.text import TfidfVectorizer
+from helpers.Similarity import avg_sentiment, sentiment_similarity
 
 # Build Sim Matrix using SVD
-
 
 def build_sim_matrix(documents, k=100):
     vectorizer = TfidfVectorizer(stop_words='english', max_df=.7, min_df=75)
@@ -14,7 +14,7 @@ def build_sim_matrix(documents, k=100):
 
     # u, s, v_trans = svds(td_matrix, k=k)
 
-    docs_compressed, s, words_compressed = svds(td_matrix, k=int(k/2))
+    docs_compressed, _, _ = svds(td_matrix, k=int(k/2))
     # words_compressed = words_compressed.transpose()
     docs_compressed_normed = normalize(docs_compressed)
 
@@ -24,16 +24,18 @@ def build_sim_matrix(documents, k=100):
     sim_matrix = docs_compressed_normed.dot(docs_compressed_normed.T)
     return sim_matrix
 
-
-def get_top_k(title, title_to_idx, sim_matrix, k=10):
+def get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k=10, sentiment_sim=0.1):
     idx = title_to_idx[title]
-    top_k_indices = sim_matrix[idx].argsort()[::-1][1:k]
-    top_k_values = sim_matrix[idx][top_k_indices]
+    query_sentiment = idx_to_sentiments[str(idx)]
+    sentiment_scores = np.array([sentiment_similarity(query_sentiment, s) for s in idx_to_sentiments.values()])
+    combined_scores = (1.0 - sentiment_sim) * (sim_matrix[idx]) + sentiment_sim * sentiment_scores
+    top_k_indices = combined_scores.argsort()[::-1][1:k+1]
+    top_k_values = combined_scores[top_k_indices]
     return top_k_indices, top_k_values
 
 
-def get_top_k_talks(title, title_to_idx, idx_to_title, sim_matrix, k=10):
-    top_k_indices, top_k_values = get_top_k(title, title_to_idx, sim_matrix, k)
+def get_top_k_talks(title, title_to_idx, idx_to_title, idx_to_sentiments, sim_matrix, k=10):
+    top_k_indices, top_k_values = get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k)
     return [(idx_to_title[str(idx)], score) for (idx, score) in zip(top_k_indices, top_k_values)]
 
 
@@ -42,10 +44,13 @@ def prepare_data():
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
         talks = pd.json_normalize(data)
+        talks = talks[talks['transcript'] != '']
 
     # Get transcripts in one place
     documents = []
+    idx_to_sentiments = {}
     for idx, row in talks.iterrows():
+        idx_to_sentiments[idx] = avg_sentiment(row['comments'])
         documents.append((row['title'], row['transcript']))
 
     idx_to_title = {}
@@ -61,6 +66,8 @@ def prepare_data():
         json.dump(idx_to_title, json_file)
     with open("docname_to_idx", 'w') as json_file:
         json.dump(title_to_idx, json_file)
+    with open("idx_to_sentiments", 'w') as json_file:
+        json.dump(idx_to_sentiments, json_file)
 
     chunk_size = len(sim_matrix) // 6
     chunks = [sim_matrix[i:i+chunk_size]
@@ -84,5 +91,10 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open("idx_to_docnames", 'r') as json_file:
         inv = json.load(json_file)
+    with open("idx_to_sentiments", 'r') as json_file:
+        idx_to_sentiments = json.load(json_file)
 
-    return get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
+    return get_top_k_talks(query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, 10)
+
+if __name__ == '__main__':
+    prepare_data()

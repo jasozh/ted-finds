@@ -43,6 +43,7 @@ with open(json_file_path, 'r') as file:
         "comments"
     """
     df = pd.read_json(file)
+    df = df[df['transcript'] != '']
     titles = df["title"]
 
     df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
@@ -68,6 +69,7 @@ def json_search(query):
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
+    p3 = os.path.join(current_directory, 'helpers/idx_to_sentiments')
     # p3 = os.path.join(current_directory,
     #                  'helpers/cosine_similarity_matrix.npy')
 
@@ -82,8 +84,10 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open(p2, 'r') as json_file:
         inv = json.load(json_file)
+    with open(p3, 'r') as json_file:
+        idx_to_sentiments = json.load(json_file)
     # matrix = np.load(p3)
-    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
+    return bm.get_top_k_talks(query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, 10)
 
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
