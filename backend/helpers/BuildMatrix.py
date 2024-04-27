@@ -9,6 +9,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 
 def build_sim_matrix(documents, k=100):
+    """
+    Builds the similarity matrix
+    """
     vectorizer = TfidfVectorizer(stop_words='english', max_df=.7, min_df=75)
     td_matrix = vectorizer.fit_transform(documents)
 
@@ -91,11 +94,14 @@ def build_sim_matrix(documents, k=100):
     # td_matrix_np = td_matrix.transpose().toarray()
     # td_matrix_np = normalize(td_matrix_np)
 
-    sim_matrix = docs_compressed_normed.dot(docs_compressed_normed.T)
-    return sim_matrix
+    # sim_matrix = docs_compressed_normed.dot(docs_compressed_normed.T)
+    # return sim_matrix
 
 
 def get_top_k(title, title_to_idx, sim_matrix, k=10):
+    """
+    Gets the top k
+    """
     idx = title_to_idx[title]
     top_k_indices = sim_matrix[idx].argsort()[::-1][1:k]
     top_k_values = sim_matrix[idx][top_k_indices]
@@ -103,7 +109,9 @@ def get_top_k(title, title_to_idx, sim_matrix, k=10):
 
 
 def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx, idx_to_categories):
-
+    """
+    Gets doc category scores
+    """
     idxs = [docname_to_idx[name] for name in docs]
     c_idxs = [c for c in categories]
 
@@ -119,12 +127,18 @@ def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx, idx_to_
 
 
 def get_categories(query, dc_matrix, names_to_idx):
+    """
+    Gets categories
+    """
     idx = names_to_idx[query]
     x = np.argsort(dc_matrix[idx])[:10]
     return np.argsort(dc_matrix[idx])[:10]
 
 
 def get_top_k_talks(title, title_to_idx, idx_to_title, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, k=10):
+    """
+    Gets the top k most similar talks, where k = 10 by default.
+    """
     top_k_indices, top_k_values = get_top_k(title, title_to_idx, sim_matrix, k)
     # tops =  [(idx_to_title[str(idx)], score) for (idx, score) in zip(top_k_indices, top_k_values)]
     docs = [idx_to_title[str(idx)] for idx in top_k_indices]
@@ -140,6 +154,10 @@ def get_top_k_talks(title, title_to_idx, idx_to_title, sim_matrix, dc_matrix, id
 
 
 def prepare_data():
+    """
+    Loads init.json and builds a cosine similarity matrix of all of the transcripts
+    once
+    """
     # Preprocess Data
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
@@ -187,8 +205,6 @@ def prepare_data():
     for i, chunk in enumerate(chunks_2):
         filename = f'dc_chunk_{i}.npy'
         np.save(filename, chunk)
-
-# prepare_data()
 
 
 def get_top_10_for_query(query):
