@@ -42,6 +42,7 @@ def prepare_data():
     with open('../init.json', 'r') as json_file:
         data = json.load(json_file)
         talks = pd.json_normalize(data)
+        talks = talks[talks['transcript'] != '']
 
     # Get transcripts in one place
     documents = []
