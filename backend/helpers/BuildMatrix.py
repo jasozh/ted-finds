@@ -225,7 +225,3 @@ def get_top_10_for_query(query):
     zipped = zip(top_k_talks, dc_scores)
 
     return zipped
-
-
-if __name__ == '__main__':
-    prepare_data()
