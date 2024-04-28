@@ -253,7 +253,7 @@ def video():
     # Get comments
     try:
         comments = json.loads(df[df["_id"] == video_id].iloc[0]['comments'])
-        #comments = data['comments']
+        #comments = json.load(data.comments)
         print("Loaded")
     except:
         comments = {}
