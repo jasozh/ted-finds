@@ -260,12 +260,13 @@ def video():
     # Convert the dictionary to a DataFrame
     df_polar = pd.DataFrame(polar_data)
     df_polar['videos'] = titles
-    df_polar = df_polar.melt(id_vars=['videos'], var_name='direction', value_name='frequency')
+    df_polar = df_polar.melt(
+        id_vars=['videos'], var_name='direction', value_name='frequency')
 
     # Generate the polar chart
     fig = px.line_polar(df_polar, r='frequency', theta='direction', color='videos', line_close=True,
                         color_discrete_sequence=px.colors.qualitative.D3)
-    
+
     MAX_LEGEND_LENGTH = 25  # Maximum character length for legend items
 
     for trace in fig.data:
@@ -306,12 +307,15 @@ def video():
     print(polar_chart_json)
 
     related_videos = df[df["title"].isin(titles[:-1])]
-    related_videos["cosine_similarity"] = [-1 for _ in range(len(related_videos))]
+    related_videos["cosine_similarity"] = [
+        -1 for _ in range(len(related_videos))]
     for i, video in related_videos.iterrows():
         title = video["title"]
-        related_videos.at[i, "cosine_similarity"] = round(titles_scores_dict[title][0] * 100, 2)
+        related_videos.at[i, "cosine_similarity"] = round(
+            titles_scores_dict[title][0] * 100, 2)
 
-    sorted_related_videos = related_videos.sort_values(by="cosine_similarity", ascending=False)
+    sorted_related_videos = related_videos.sort_values(
+        by="cosine_similarity", ascending=False)
 
     # Get comments
     try:
@@ -335,6 +339,7 @@ def video():
     return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos,
                            positive_comments=positive_comments, negative_comments=negative_comments,
                            polar_chart_json=polar_chart_json)
+
 
 @ app.route("/example")
 def example():
