@@ -23,6 +23,16 @@ def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
         edit_dist = edit_distance(query, doc)
         return edit_dist
     return float('inf')
+  
+  def simpler_jaccard(query, doc, jaccard_threshold=0.1):
+    query_set = set(query.lower())
+    doc_set = set(doc.lower())
+    j = jaccard(query_set, doc_set)
+
+    if j >= jaccard_threshold:
+        edit_dist = edit_distance(query, doc)
+        return edit_dist
+    return float('inf')
 
 def removeLinksSpecials(comments_str):
     """
@@ -53,8 +63,6 @@ def avg_sentiment(comments_str):
 def sentiment_similarity(sentiment1, sentiment2):
     # Assuming sentiments are scaled from -1 to 1
     return 1 - abs(sentiment1 - sentiment2)
-
-### I don't think anything below here is used ###
 
 def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript=1.0, w_summary=0.0, w_title=0.0, w_sentiment=0.0, w_speaker=0.0):
     """Returns a float giving the weighted similarity of 
