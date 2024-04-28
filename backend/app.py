@@ -86,7 +86,7 @@ def get_top_10_for_query(query):
         inv = json.load(json_file)
     with open(p3, 'r') as json_file:
         idx_to_sentiments = json.load(json_file)
-        
+
     dc_loaded_chunks = []
     for i in range(6):
         filename = os.path.join(current_directory, f'helpers/dc_chunk_{i}.npy')

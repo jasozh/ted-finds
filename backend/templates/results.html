@@ -3,15 +3,21 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='results.css') }}" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
-  rel="stylesheet" />
+<link
+  href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
+  rel="stylesheet"
+/>
 
 <head>
   <meta charset="UTF-8" />
   <title>Ted Finder</title>
   <link href="../static/results.css" rel="stylesheet" type="text/css" />
 
-  <link href="{{ url_for('static', filename='results.css') }}" rel="stylesheet" type="text/css" />
+  <link
+    href="{{ url_for('static', filename='results.css') }}"
+    rel="stylesheet"
+    type="text/css"
+  />
 </head>
 
 <body>
@@ -25,7 +31,10 @@
   </script>
   <div class="mainbox">
     <div class="box1">
-      <img src="{{url_for('static', filename='images/ted_finds_image.png')}}" class="mainboximage" />
+      <img
+        src="{{url_for('static', filename='images/ted_finds_image.png')}}"
+        class="mainboximage"
+      />
       <div class="sidebox">
         <div class="container">
           <h2 id="jump-1"><br /></h2>
@@ -37,7 +46,11 @@
 
     <h3 id="jump-exp">Top Results</h3>
     {% for result in data.iloc %}
-    <div class="block" onclick="onClick('{{result._id}}')" style="cursor: pointer">
+    <div
+      class="block"
+      onclick="onClick('{{result._id}}')"
+      style="cursor: pointer"
+    >
       <h2 id="jump-exp">{{ result.title }}</h2>
       <br />
       <p>

@@ -8,6 +8,7 @@ from helpers.Similarity import avg_sentiment, sentiment_similarity
 
 # Build Sim Matrix using SVD
 
+
 def build_sim_matrix(documents, k=100):
     """
     Builds the similarity matrix
@@ -16,7 +17,7 @@ def build_sim_matrix(documents, k=100):
     td_matrix = vectorizer.fit_transform(documents)
 
     # u, s, v_trans = svds(td_matrix, k=k)
-    
+
     docs_compressed, s, words_compressed = svds(td_matrix, k=int(k/2))
     words_compressed = words_compressed.transpose()
 
@@ -98,17 +99,21 @@ def build_sim_matrix(documents, k=100):
     # sim_matrix = docs_compressed_normed.dot(docs_compressed_normed.T)
     # return sim_matrix
 
+
 def get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k=10, sentiment_sim=0.1):
     """
     Gets the top k
     """
     idx = title_to_idx[title]
     query_sentiment = idx_to_sentiments[str(idx)]
-    sentiment_scores = np.array([sentiment_similarity(query_sentiment, s) for s in idx_to_sentiments.values()])
-    combined_scores = (1.0 - sentiment_sim) * (sim_matrix[idx]) + sentiment_sim * sentiment_scores
+    sentiment_scores = np.array([sentiment_similarity(
+        query_sentiment, s) for s in idx_to_sentiments.values()])
+    combined_scores = (1.0 - sentiment_sim) * \
+        (sim_matrix[idx]) + sentiment_sim * sentiment_scores
     top_k_indices = combined_scores.argsort()[::-1][1:k+1]
     top_k_values = combined_scores[top_k_indices]
     return top_k_indices, top_k_values
+
 
 def get_doc_category_scores(docs, categories, dc_matrix, docname_to_idx, idx_to_categories):
     """
@@ -141,7 +146,8 @@ def get_top_k_talks(title, title_to_idx, idx_to_title, idx_to_sentiments, sim_ma
     """
     Gets the top k most similar talks, where k = 10 by default.
     """
-    top_k_indices, top_k_values = get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k)
+    top_k_indices, top_k_values = get_top_k(
+        title, title_to_idx, idx_to_sentiments, sim_matrix, k)
     # tops =  [(idx_to_title[str(idx)], score) for (idx, score) in zip(top_k_indices, top_k_values)]
     docs = [idx_to_title[str(idx)] for idx in top_k_indices]
     categories = get_categories(title, dc_matrix, title_to_idx)
@@ -242,7 +248,8 @@ def get_top_10_for_query(query):
     with open("categories", 'r') as json_file:
         idx_to_categories = json.load(json_file)
 
-    top_k_talks = get_top_k_talks(query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, 10)
+    top_k_talks = get_top_k_talks(
+        query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, 10)
     titles = [title for title, _ in top_k_talks]
     categories = get_categories(query, dc_matrix, idx_to_categories)
     dc_scores = get_doc_category_scores(titles, categories)
