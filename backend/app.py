@@ -224,23 +224,30 @@ def video():
     data = df[df["_id"] == video_id].iloc[0]
 
     # Cosine Similarity
-    related_videos = get_top_10_for_query(data.title)
+    results, _ = get_top_10_for_query(data.title)
 
-    titles = [related_video[0] for related_video in related_videos]
-    titles_scores_dict = dict(related_videos)
-
-    related_videos = df[df["title"].isin(titles)]
-
-    related_videos["cosine_similarity"] = [
-        -1 for _ in range(len(related_videos))]
+    titles = [result[0] for result in results]
+    # print(len(titles))
+    titles_scores_dict = dict(results)
     # print(titles_scores_dict)
-    for i, video in related_videos.iterrows():
-        title = video["title"]
-        related_videos.loc[i, "cosine_similarity"] = round(
-            titles_scores_dict[title]*100, 2)
 
-    sorted_related_videos = related_videos.sort_values(
-        by="cosine_similarity", ascending=False)
+    data = df[df["title"].isin(titles)]
+
+    # Create new column
+    data["cosine_similarity"] = [-1 for _ in range(len(data))]
+    data["category_scores"] = [{}] * len(data)
+    # print(titles_scores_dict)
+    for i, video in data.iterrows():
+        title = video["title"]
+        data.at[i, "cosine_similarity"] = round(
+            titles_scores_dict[title][0]*100, 2)
+        # data.loc[i, "category_scores"] = titles_scores_dict[title][1]
+        data.at[i, "category_scores"] = titles_scores_dict[title][1]
+
+    # dictionary of the form {1597: -0.033, 3356: -0.0952, 5614: -0.3411, ... } is stored in titles_scores_dict[title][1]
+
+    # Sort data by cosine_similarity in descending order
+    sorted_related_videos = data.sort_values(by="cosine_similarity", ascending=False)
 
     # Get comments
     try:
