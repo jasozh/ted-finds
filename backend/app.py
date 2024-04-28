@@ -6,7 +6,7 @@ from markupsafe import Markup
 import plotly
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from helpers.edit_distance import *
-from helpers.Similarity import combined_jaccard_edit_distance
+from helpers.Similarity import combined_jaccard_edit_distance, simpler_jaccard
 import pandas as pd
 import numpy as np
 import time
@@ -133,12 +133,42 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     return result
 
 
+def simple_filter(search_query: str) -> list[tuple[str, int]]:
+    """
+    Filters the list of suggested titles based on edit distance
+    """
+    start_time = time.time()
+    q = search_query.lower()
+
+    # Find smallest 5 edit distance
+    n = titles.size
+    # (i, val) = (df index, edit distance to q)
+    sim_arr = np.zeros(n)
+    for i in range(n):
+        d = titles.iloc[i].lower()
+        sim_arr[i] = simpler_jaccard(q, d)
+    top_5_indices = np.argsort(sim_arr)[:5]
+
+    # Return as list
+    result = [(titles.iloc[i], sim_arr[i])
+              for i in top_5_indices if sim_arr[i] != float('inf')]
+
+    # Measure performance
+    end_time = time.time()
+    elapsed_time = end_time - start_time
+    print(f"The operation took {elapsed_time:.4f} seconds.")
+
+    return result
+
+
 @app.route("/")
 @app.route("/search")
 def home():
     search_query = request.args.get("q")
     if search_query:
         autocomplete = autocomplete_filter(search_query)
+        if (len(autocomplete) < 5):
+            autocomplete = simple_filter(search_query)
     else:
         search_query = ""
         autocomplete = [(title, "") for title in titles[:5]]
@@ -196,8 +226,16 @@ def video():
     video_id = int(request.args.get('w'))
     data = df[df["_id"] == video_id].iloc[0]
 
-    # Retrieve related videos and the category scores for the query
+    # Cosine Similarity
+    # NEW:
+    #   return type of related_videos is (results, query_results)
+    #   where results = [ (title, (score, categories))]
+    # ORIGINAL:
+    #   return type of related_videos is [ (title, score) ]
     related_videos, query_cat_scores = get_top_10_for_query(data.title)
+
+    # Convert results to expected type of related_videos as [ (title, score) ]
+    related_videos = [(title, score) for (title, (score, cat)) in results]
 
     titles = [related_video[0] for related_video in related_videos]
     titles_scores_dict = dict(related_videos)
