@@ -30,21 +30,21 @@
     };
   </script>
   <div class="mainbox">
-    <div class="box1">
+    <div style="display: flex; align-items: center; justify-content: center">
       <img
-        src="{{url_for('static', filename='images/ted_finds_image.png')}}"
-        class="mainboximage"
+        src="{{url_for('static', filename='images/ted_finds_image2.png')}}"
+        style="width: 300px; padding-bottom: 30px"
       />
-      <div class="sidebox">
-        <div class="container">
-          <h2 id="jump-1"><br /></h2>
-        </div>
-      </div>
     </div>
+    <!-- <div class="sidebox">
+      <div class="container">
+        <h2 id="jump-1"><br /></h2>
+      </div>
+    </div> -->
 
     <hr />
 
-    <h3 id="jump-exp">Top Results</h3>
+    <!-- <h3 id="jump-exp">Top Results</h3> -->
     {% for result in data.iloc %}
     <div
       class="block"
