@@ -237,7 +237,7 @@ h1 {
 }
 
 h2 {
-  color: rgba(214, 13, 13, 0.719);
+  /* color: rgba(214, 13, 13, 0.719); */
   letter-spacing: 0.04em;
   /* font-family: "Montserrat", Arial, sans-serif; */
   font-size: 75px;
@@ -255,7 +255,8 @@ h2 {
 }
 
 h3 {
-  color: rgba(214, 13, 13, 0.719);
+  /* color: rgba(214, 13, 13, 0.719); */
+  color: rgb(243 244 246);
   letter-spacing: 0.03em;
   /* font-family: "Open Sans", Arial, sans-serif; */
   font-size: 40px;
