@@ -232,6 +232,7 @@ def video():
     # print(titles_scores_dict)
 
     data = df[df["title"].isin(titles)]
+    print(data)
 
     # Create new column
     data["cosine_similarity"] = [-1 for _ in range(len(data))]
@@ -251,10 +252,12 @@ def video():
 
     # Get comments
     try:
-        comments = json.loads(data.comments)
-        print(comments[0]["body"])
+        comments = json.loads(df[df["_id"] == video_id].iloc[0]['comments'])
+        #comments = data['comments']
+        print("Loaded")
     except:
         comments = {}
+        print("No comments")
 
     positive_comments = sorted([
         comments[i]
