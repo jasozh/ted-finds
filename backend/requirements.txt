@@ -24,6 +24,7 @@ SQLAlchemy==1.4.46
 typing_extensions==4.5.0
 tzdata==2024.1
 Werkzeug==2.2.2
+plotly
 python-dotenv
 google-api-python-client
 scikit-learn
