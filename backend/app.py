@@ -4,14 +4,15 @@ from flask import Flask, render_template, request
 from flask_cors import CORS
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from helpers.edit_distance import *
+from helpers.Similarity import combined_jaccard_edit_distance
 import pandas as pd
 import numpy as np
 import time
 import helpers.BuildMatrix as bm
 
-# ROOT_PATH for linking with all your files. 
+# ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
-os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..",os.curdir))
+os.environ['ROOT_PATH'] = os.path.abspath(os.path.join("..", os.curdir))
 
 # Get the directory of the current script
 current_directory = os.path.dirname(os.path.abspath(__file__))
@@ -23,25 +24,26 @@ json_file_path = os.path.join(current_directory, 'init.json')
 with open(json_file_path, 'r') as file:
     """
     Creates a Pandas DataFrame with the following keys for each TED Talk:
-        "_id" 
-        "duration" 
-        "event" 
-        "likes" 
-        "page_url" 
-        "published_date" 
-        "recorded_date" 
-        "related_videos" 
-        "speakers" 
-        "subtitle_languages" 
-        "summary" 
-        "title" 
-        "topics" 
-        "transcript" 
-        "views" 
-        "youtube_video_code" 
-        "comments" 
+        "_id"
+        "duration"
+        "event"
+        "likes"
+        "page_url"
+        "published_date"
+        "recorded_date"
+        "related_videos"
+        "speakers"
+        "subtitle_languages"
+        "summary"
+        "title"
+        "topics"
+        "transcript"
+        "views"
+        "youtube_video_code"
+        "comments"
     """
-    df = pd.read_json(file).head(500)
+    df = pd.read_json(file)
+    df = df[df['transcript'] != '']
     titles = df["title"]
 
     df['speakers'] = df['speakers'].apply(lambda x: json.loads(x))
@@ -51,24 +53,38 @@ app = Flask(__name__)
 CORS(app)
 
 # Sample search using json with pandas
+
+
 def json_search(query):
     matches = []
-    merged_df = pd.merge(episodes_df, reviews_df, left_on='id', right_on='id', how='inner')
-    matches = merged_df[merged_df['title'].str.lower().str.contains(query.lower())]
+    merged_df = pd.merge(episodes_df, reviews_df,
+                         left_on='id', right_on='id', how='inner')
+    matches = merged_df[merged_df['title'].str.lower(
+    ).str.contains(query.lower())]
     matches_filtered = matches[['title', 'descr', 'imdb_rating']]
     matches_filtered_json = matches_filtered.to_json(orient='records')
     return matches_filtered_json
 
+
 def get_top_10_for_query(query):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p2 = os.path.join(current_directory, 'helpers/idx_to_docnames')
-    p3 = os.path.join(current_directory, 'helpers/cosine_similarity_matrix.npy')
-    with open(p1, 'r') as json_file:    
+    # p3 = os.path.join(current_directory,
+    #                  'helpers/cosine_similarity_matrix.npy')
+
+    loaded_chunks = []
+    for i in range(6):
+        filename = os.path.join(current_directory, f'helpers/chunk_{i}.npy')
+        loaded_chunk = np.load(filename)
+        loaded_chunks.append(loaded_chunk)
+    sim_matrix = np.concatenate(loaded_chunks)
+
+    with open(p1, 'r') as json_file:
         docname_to_idx = json.load(json_file)
-    with open(p2, 'r') as json_file:    
+    with open(p2, 'r') as json_file:
         inv = json.load(json_file)
-    matrix = np.load(p3)
-    return bm.get_rankings(query, matrix, docname_to_idx, inv)[:10]
+    # matrix = np.load(p3)
+    return bm.get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
 
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
@@ -80,14 +96,16 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
 
     # Find smallest 5 edit distance
     n = titles.size
-    edit_distance_arr = np.zeros(n) # (i, val) = (df index, edit distance to q)
+    # (i, val) = (df index, edit distance to q)
+    sim_arr = np.zeros(n)
     for i in range(n):
         d = titles.iloc[i].lower()
-        edit_distance_arr[i] = edit_distance(q, d)
-    top_5_indices = np.argsort(edit_distance_arr)[:5]
+        sim_arr[i] = combined_jaccard_edit_distance(q, d)
+    top_5_indices = np.argsort(sim_arr)[:5]
 
     # Return as list
-    result = [(titles.iloc[i], edit_distance_arr[i]) for i in top_5_indices]
+    result = [(titles.iloc[i], sim_arr[i])
+              for i in top_5_indices if sim_arr[i] != float('inf')]
 
     # Measure performance
     end_time = time.time()
@@ -95,6 +113,7 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     print(f"The operation took {elapsed_time:.4f} seconds.")
 
     return result
+
 
 @app.route("/")
 @app.route("/search")
@@ -107,6 +126,7 @@ def home():
         autocomplete = [(title, "") for title in titles[:5]]
     return render_template('home.html', title="Home", query=search_query, autocomplete=autocomplete)
 
+
 @app.route("/results")
 def results():
     search_query = request.args.get('q')
@@ -114,8 +134,21 @@ def results():
     results = get_top_10_for_query(search_query)
 
     titles = [result[0] for result in results]
+    print(len(titles))
+    titles_scores_dict = dict(results)
 
     data = df[df["title"].isin(titles)]
+
+    # Create new column
+    data["cosine_similarity"] = [-1 for _ in range(len(data))]
+    print(titles_scores_dict)
+    for i, video in data.iterrows():
+        title = video["title"]
+        data.loc[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
+
+    # Sort data by cosine_similarity in descending order
+    sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
     # data = [{
     #     'title': ['Presentation 1'],
@@ -128,34 +161,75 @@ def results():
     #     'summary': ['Summary of Ted Talk']
     # }]
 
-    return render_template('results.html', title="Results", search_query=search_query, data=data)
+    return render_template('results.html', title="Results", search_query=search_query, data=sorted_data)
+
 
 @app.route("/video")
 def video():
-    video_title = request.args.get('w')
-    data = df[df["title"] == video_title].iloc[0]
-    related_videos = []
-    positive_comments = [
-        "Positive Comment 1 from YouTube...",
-        "Positive Comment 2 from YouTube...",
-        "Positive Comment 3 from YouTube...",
-    ]
-    negative_comments = [
-        "Negative Comment 1 from YouTube...",
-        "Negative Comment 2 from YouTube...",
-        "Negative Comment 3 from YouTube...",
-    ]
-    return render_template('video.html', title="Video", data=data, related_videos=related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
+    video_id = int(request.args.get('w'))
+    data = df[df["_id"] == video_id].iloc[0]
 
-@app.route("/example")
+    # Cosine Similarity
+    related_videos = get_top_10_for_query(data.title)
+
+    titles = [related_video[0] for related_video in related_videos]
+    titles_scores_dict = dict(related_videos)
+
+    related_videos = df[df["title"].isin(titles)]
+
+    related_videos["cosine_similarity"] = [
+        -1 for _ in range(len(related_videos))]
+    print(titles_scores_dict)
+    for i, video in related_videos.iterrows():
+        title = video["title"]
+        related_videos.loc[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
+
+    sorted_related_videos = related_videos.sort_values(
+        by="cosine_similarity", ascending=False)
+
+    # Get comments
+    try:
+        comments = json.loads(data.comments)
+        print(comments[0]["body"])
+    except:
+        comments = {}
+
+    positive_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] > 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    negative_comments = sorted([
+        comments[i]
+        for i in range(len(comments))
+        if comments[i]["sentiment"] < 0
+    ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
+
+    # positive_comments = [
+    #     "Positive Comment 1 from YouTube...",
+    #     "Positive Comment 2 from YouTube...",
+    #     "Positive Comment 3 from YouTube...",
+    # ]
+    # negative_comments = [
+    #     "Negative Comment 1 from YouTube...",
+    #     "Negative Comment 2 from YouTube...",
+    #     "Negative Comment 3 from YouTube...",
+    # ]
+    return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
+
+
+@ app.route("/example")
 def example():
     return render_template('example.html', title="Example")
 
 
-@app.route("/episodes")
+@ app.route("/episodes")
 def episodes_search():
     text = request.args.get("title")
     return json_search(text)
 
+
 if 'DB_NAME' not in os.environ:
-    app.run(debug=True,host="0.0.0.0",port=5000)
+    app.run(debug=True, host="0.0.0.0", port=5000)

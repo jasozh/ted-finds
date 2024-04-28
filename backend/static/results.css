@@ -1,14 +1,26 @@
 /* ## lot of junk from other project ## */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
 
 body {
-  background-color: #f1fbff;
+  background-color: rgb(38 38 38);
+  padding: 4rem 0 4rem 0;
+  line-height: 1.5;
+  font-family: "Inter", sans-serif;
 }
 
 em {
   font-weight: bold;
   text-decoration: underline;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
   font-style: normal;
+}
+
+a {
+  color: rgb(96 165 250);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
 }
 
 /* body {
@@ -94,7 +106,7 @@ body {
 
 .navbar a {
   color: rgb(239, 251, 255);
-  font-family: "Work Sans", sans-serif;
+  /* font-family: "Work Sans", sans-serif; */
   text-decoration: none;
   position: relative;
   margin-left: 30px;
@@ -170,11 +182,11 @@ h1 {
 
 h1 {
   font-size: 70px;
-  letter-spacing: 0.15em;
-  word-spacing: 0.3em;
+  /* letter-spacing: 0.15em;
+  word-spacing: 0.3em; */
   color: rgb(147, 53, 18);
-  font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
-    "Lucida Sans", Arial, sans-serif;
+  /* font-family: "Trebuchet MS", "Lucida Sans Unicode", "Lucida Grande",
+    "Lucida Sans", Arial, sans-serif; */
   text-align: center;
   flex-grow: 1;
 }
@@ -192,7 +204,7 @@ h1 {
 .image-text {
   position: absolute;
   top: 50%;
-  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  /* font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; */
   left: 50%;
   transform: translate(-50%, -50%);
   text-align: center;
@@ -227,9 +239,9 @@ h1 {
 h2 {
   color: rgba(214, 13, 13, 0.719);
   letter-spacing: 0.04em;
-  font-family: "Montserrat", Arial, sans-serif;
+  /* font-family: "Montserrat", Arial, sans-serif; */
   font-size: 75px;
-  padding-left: 50px;
+  padding-left: 60px;
   z-index: 1;
 }
 /* .sidebox h2:hover { */
@@ -245,28 +257,29 @@ h2 {
 h3 {
   color: rgba(214, 13, 13, 0.719);
   letter-spacing: 0.03em;
-  font-family: "Open Sans", Arial, sans-serif;
+  /* font-family: "Open Sans", Arial, sans-serif; */
   font-size: 40px;
-  padding-left: 50px;
+  /* padding-left: 50px; */
+  padding-left: 25px;
 }
 
 p {
   color: rgb(37, 57, 90);
   font-size: 100%;
-  word-spacing: 0.19em;
-  letter-spacing: 0.02em;
+  /* word-spacing: 0.19em;
+  letter-spacing: 0.02em; */
   line-height: 1.6;
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
+  /* font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif; */
   padding-left: 60px;
   padding-right: 60px;
 }
-@media (max-width: 1280px) {
+/* @media (max-width: 1280px) {
   p {
     letter-spacing: 0.01em;
     font-size: 1em;
   }
-}
+} */
 
 .map-container {
   text-align: center;
@@ -283,9 +296,9 @@ p {
 
 .event-text p {
   color: rgb(101, 34, 28);
-  word-spacing: 0.1em;
-  letter-spacing: 0.02em;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  /* word-spacing: 0.1em;
+  letter-spacing: 0.02em; */
+  /* font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif; */
   padding-left: 0px;
   padding-right: 30px;
   font-size: medium;
@@ -361,9 +374,9 @@ p {
 
 .event-wrap-food ul {
   color: rgb(101, 34, 28);
-  word-spacing: 0.1em;
-  letter-spacing: 0.02em;
-  font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+  /* word-spacing: 0.1em;
+  letter-spacing: 0.02em; */
+  /* font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif; */
   border-left: 2px solid rgb(203, 170, 85);
 }
 
@@ -374,14 +387,17 @@ p {
 
 .mainbox {
   border-radius: 5px;
+  padding: 4rem 0 4rem 0;
   /* margin-top: 20px; */
-  margin-top: 5px;
+  /* margin-top: 5px;
   margin-left: 300px;
-  margin-right: 300px;
-  /* background-color : #FFC26F ; */
-  background-color: #afd3e2;
+  margin-right: 300px; */
+  /* background-color: #ffc26f; */
+  /* background-color: #afd3e2; */
+  max-width: 1000px;
+  margin: auto;
 }
-@media (max-width: 1280px) {
+/* @media (max-width: 1280px) {
   .mainbox {
     margin-left: 20px;
     margin-right: 20px;
@@ -392,7 +408,7 @@ p {
   .sidebox h2 {
     line-height: 20px;
   }
-}
+} */
 
 .sidebox {
   margin-top: 80px;
@@ -443,32 +459,37 @@ hr {
 }
 
 .block {
-  background-color: #c6e0eb;
+  /* background-color: #c6e0eb; */
+  background-color: rgba(255, 255, 255, 0.1);
+  color: rgb(243 244 246);
+  border-radius: 1rem;
   /* c6e0eb */
   /* border: 1px solid; */
   /* border-color: #146C94; */
-  margin: auto;
-  width: 80%;
+  /* margin: auto; */
+  /* width: 80%; */
+  margin: 25px;
   padding: 10px;
-  margin-bottom: 25px;
+  /* margin-bottom: 25px; */
   /* border-radius: 10px;  */
   transition: background-color 0.3s ease;
 }
 
 .block:hover {
-  background-color: #abcdef; /* Replace with the desired shade */
+  background-color: rgba(255, 255, 255, 0.15);
 }
 
 .block p {
-  color: rgb(37, 57, 90);
-  font-size: 90%;
-  word-spacing: 0.29em;
-  letter-spacing: 0.03em;
+  /* color: rgb(37, 57, 90); */
+  color: rgb(243 244 246);
+  /* font-size: 90%; */
+  /* word-spacing: 0.29em;
+  letter-spacing: 0.03em; */
   line-height: 1.25;
-  font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
-    "Lucida Sans Unicode", Geneva, Verdana, sans-serif;
-  padding-left: 60px;
-  padding-right: 60px;
+  /* font-family: "Lucida Sans", "Lucida Sans Regular", "Lucida Grande",
+    "Lucida Sans Unicode", Geneva, Verdana, sans-serif; */
+  /* padding-left: 60px;
+  padding-right: 60px; */
 }
 
 .block h2 {
