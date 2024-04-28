@@ -227,7 +227,15 @@ def video():
     data = df[df["_id"] == video_id].iloc[0]
 
     # Cosine Similarity
-    related_videos = get_top_10_for_query(data.title)
+    # NEW:
+    #   return type of related_videos is (results, query_results)
+    #   where results = [ (title, (score, categories))]
+    # ORIGINAL:
+    #   return type of related_videos is [ (title, score) ]
+    results, _ = get_top_10_for_query(data.title)
+
+    # Convert results to expected type of related_videos as [ (title, score) ]
+    related_videos = [(title, score) for (title, (score, cat)) in results]
 
     titles = [related_video[0] for related_video in related_videos]
     titles_scores_dict = dict(related_videos)
