@@ -295,8 +295,6 @@ def video():
     polar_chart_json = polar_chart_json.replace("'", "&#39;")
     polar_chart_json = Markup(polar_chart_json)
 
-    print(polar_chart_json)
-
     related_videos = df[df["title"].isin(titles[:-1])]
     related_videos["cosine_similarity"] = [-1 for _ in range(len(related_videos))]
     for i, video in related_videos.iterrows():
