@@ -1,4 +1,6 @@
 import numpy as np
+import json
+import re
 from helpers.edit_distance import *
 
 
@@ -12,7 +14,7 @@ def jaccard_mat(query, docs):
     return
 
 
-def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
+def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.05):
     query_set = set(query.lower().split())
     doc_set = set(doc.lower().split())
     j = jaccard(query_set, doc_set)
@@ -23,7 +25,7 @@ def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
     return float('inf')
 
 
-def simpler_jaccard(query, doc, jaccard_threshold=0.1):
+def simpler_jaccard(query, doc, jaccard_threshold=0.05):
     query_set = set(query.lower())
     doc_set = set(doc.lower())
     j = jaccard(query_set, doc_set)
@@ -32,6 +34,40 @@ def simpler_jaccard(query, doc, jaccard_threshold=0.1):
         edit_dist = edit_distance(query, doc)
         return edit_dist
     return float('inf')
+
+
+def removeLinksSpecials(comments_str):
+    """
+    Cleans up the input JSON string by removing HTML links and backslashes.
+    """
+    cleaned_string = re.sub(r'<a [^>]*>.*?</a>', '', comments_str)
+    cleaned_string = cleaned_string.replace('\\', ' ')
+
+    return cleaned_string
+
+
+def avg_sentiment(comments_str):
+    """
+    Iterates over comment_dict_list, averaging sentiment over all comments.
+    Returns 0.0 if any error occurs or if there are no valid sentiments to average.
+    """
+    comments_str = removeLinksSpecials(comments_str)
+    if comments_str == "ERROR":
+        return 0.0
+
+    comments = json.loads(comments_str)
+    if not comments:
+        return 0.0
+
+    total_sentiment = sum(comment.get('sentiment', 0.0)
+                          for comment in comments)
+    avg_sentiment = total_sentiment / len(comments)
+    return np.round(avg_sentiment, 4)
+
+
+def sentiment_similarity(sentiment1, sentiment2):
+    # Assuming sentiments are scaled from -1 to 1
+    return 1 - abs(sentiment1 - sentiment2)
 
 
 def ted_talks_sim(talk1, talk2, doc_mat, index, w_transcript=1.0, w_summary=0.0, w_title=0.0, w_sentiment=0.0, w_speaker=0.0):
@@ -119,8 +155,8 @@ def get_rankings(talk, matrix, index):
 
     Parameters
     ----------
-    movs : str list (Length >= 2)
-        List of movie names 
+    talk : str (Length >= 2)
+        TED Talk name 
     matrix : np.ndarray
         The term document matrix of the movie transcripts. input_doc_mat[i][j] is the tfidf
         of the movie i for the word j.

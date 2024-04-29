@@ -4,6 +4,7 @@ import json
 from sklearn.preprocessing import normalize
 from scipy.sparse.linalg import svds
 from sklearn.feature_extraction.text import TfidfVectorizer
+from helpers.Similarity import avg_sentiment, sentiment_similarity
 
 # Build Sim Matrix using SVD
 
@@ -19,6 +20,7 @@ def build_sim_matrix(documents, k=100):
 
     docs_compressed, s, words_compressed = svds(td_matrix, k=int(k/2))
     words_compressed = words_compressed.transpose()
+
     docs_compressed_normed = normalize(docs_compressed)
 
     word_to_index = vectorizer.vocabulary_
@@ -98,13 +100,23 @@ def build_sim_matrix(documents, k=100):
     # return sim_matrix
 
 
-def get_top_k(title, title_to_idx, sim_matrix, k=10):
+def get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k=10, sentiment_sim=0.1):
     """
     Gets the top k
+
+    Args:
+        sentiment_sim: the ratio between sentiment and cosine similarity for calculating
+        the combined scores. Ex: sentiment_sim=0.1 means that the combined score
+        is 90% from cosine similarity and 10% from sentiment.
     """
     idx = title_to_idx[title]
-    top_k_indices = sim_matrix[idx].argsort()[::-1][1:k]
-    top_k_values = sim_matrix[idx][top_k_indices]
+    query_sentiment = idx_to_sentiments[str(idx)]
+    sentiment_scores = np.array([sentiment_similarity(
+        query_sentiment, s) for s in idx_to_sentiments.values()])
+    combined_scores = (1.0 - sentiment_sim) * \
+        (sim_matrix[idx]) + sentiment_sim * sentiment_scores
+    top_k_indices = combined_scores.argsort()[::-1][1:k+1]
+    top_k_values = combined_scores[top_k_indices]
     return top_k_indices, top_k_values
 
 
@@ -135,11 +147,12 @@ def get_categories(query, dc_matrix, names_to_idx):
     return np.argsort(dc_matrix[idx])[:20]
 
 
-def get_top_k_talks(title, title_to_idx, idx_to_title, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, k=10):
+def get_top_k_talks(title, title_to_idx, idx_to_title, idx_to_sentiments, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, k=10):
     """
     Gets the top k most similar talks, where k = 10 by default.
     """
-    top_k_indices, top_k_values = get_top_k(title, title_to_idx, sim_matrix, k)
+    top_k_indices, top_k_values = get_top_k(
+        title, title_to_idx, idx_to_sentiments, sim_matrix, k)
     # tops =  [(idx_to_title[str(idx)], score) for (idx, score) in zip(top_k_indices, top_k_values)]
     docs = [idx_to_title[str(idx)] for idx in top_k_indices]
     categories = get_categories(title, dc_matrix, title_to_idx)
@@ -166,7 +179,9 @@ def prepare_data():
 
     # Get transcripts in one place
     documents = []
+    idx_to_sentiments = {}
     for idx, row in talks.iterrows():
+        idx_to_sentiments[idx] = avg_sentiment(row['comments'])
         documents.append((row['title'], row['transcript']))
 
     idx_to_title = {}
@@ -183,6 +198,8 @@ def prepare_data():
         json.dump(idx_to_title, json_file)
     with open("docname_to_idx", 'w') as json_file:
         json.dump(title_to_idx, json_file)
+    with open("idx_to_sentiments", 'w') as json_file:
+        json.dump(idx_to_sentiments, json_file)
 
     with open("categories", "w") as json_file:
         json.dump(categories, json_file)
@@ -222,6 +239,8 @@ def get_top_10_for_query(query):
         docname_to_idx = json.load(json_file)
     with open("idx_to_docnames", 'r') as json_file:
         inv = json.load(json_file)
+    with open("idx_to_sentiments", 'r') as json_file:
+        idx_to_sentiments = json.load(json_file)
 
     loaded_chunks = []
     for i in range(6):
@@ -234,7 +253,8 @@ def get_top_10_for_query(query):
     with open("categories", 'r') as json_file:
         idx_to_categories = json.load(json_file)
 
-    top_k_talks = get_top_k_talks(query, docname_to_idx, inv, sim_matrix, 10)
+    top_k_talks = get_top_k_talks(
+        query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, 10)
     titles = [title for title, _ in top_k_talks]
     categories = get_categories(query, dc_matrix, idx_to_categories)
     dc_scores = get_doc_category_scores(titles, categories)
