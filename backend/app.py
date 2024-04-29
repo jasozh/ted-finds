@@ -2,6 +2,8 @@ import json
 import os
 from flask import Flask, render_template, request
 from flask_cors import CORS
+from markupsafe import Markup
+import plotly
 from helpers.MySQLDatabaseHandler import MySQLDatabaseHandler
 from helpers.edit_distance import *
 from helpers.Similarity import combined_jaccard_edit_distance, simpler_jaccard
@@ -9,6 +11,7 @@ import pandas as pd
 import numpy as np
 import time
 import helpers.BuildMatrix as bm
+import plotly.express as px
 
 # ROOT_PATH for linking with all your files.
 # Feel free to use a config.py or settings.py with a global export variable
@@ -226,32 +229,82 @@ def video():
     video_id = int(request.args.get('w'))
     data = df[df["_id"] == video_id].iloc[0]
 
-    # Cosine Similarity
-    # NEW:
-    #   return type of related_videos is (results, query_results)
-    #   where results = [ (title, (score, categories))]
-    # ORIGINAL:
-    #   return type of related_videos is [ (title, score) ]
-    results, _ = get_top_10_for_query(data.title)
-
-    # Convert results to expected type of related_videos as [ (title, score) ]
-    related_videos = [(title, score) for (title, (score, cat)) in results]
+    # Retrieve related videos and the category scores for the query
+    related_videos, query_cat_scores = get_top_10_for_query(data.title)
 
     titles = [related_video[0] for related_video in related_videos]
     titles_scores_dict = dict(related_videos)
+    all_category_scores = [titles_scores_dict[title][1] for title in titles]
+    all_category_scores.append(query_cat_scores)
+    titles.append('Query Scores')
 
-    related_videos = df[df["title"].isin(titles)]
+    # Create a DataFrame to hold all the scores for the polar plot
+    categories = list(query_cat_scores.keys())
+    polar_data = {category: [] for category in categories}
 
-    related_videos["cosine_similarity"] = [
-        -1 for _ in range(len(related_videos))]
-    # print(titles_scores_dict)
+    # print(categories)
+    # print(polar_data)
+
+    # Append the scores for each category in the respective lists
+    for scores in all_category_scores:
+        for category in categories:
+            polar_data[category].append(scores.get(category, 0))
+
+    # print(all_category_scores)
+
+    # Convert the dictionary to a DataFrame
+    df_polar = pd.DataFrame(polar_data)
+    df_polar['videos'] = titles
+    df_polar = df_polar.melt(id_vars=['videos'], var_name='direction', value_name='frequency')
+
+    # Generate the polar chart
+    fig = px.line_polar(df_polar, r='frequency', theta='direction', color='videos', line_close=True,
+                        color_discrete_sequence=px.colors.qualitative.D3)
+    
+    MAX_LEGEND_LENGTH = 25  # Maximum character length for legend items
+
+    for trace in fig.data:
+        if len(trace.name) > MAX_LEGEND_LENGTH:
+            trace.name = trace.name[:MAX_LEGEND_LENGTH - 3] + '...'
+            # Assumes hoverinfo includes 'name'. If not, add it as needed.
+            trace.hovertemplate = trace.hovertemplate.replace(
+                "<br>name=" + trace.name,
+                "<br>name=" + trace.name + '...'
+            )
+
+    # Set all but the first two traces to be visible only in legend by default
+    for i, trace in enumerate(fig.data):
+        if i >= 2:
+            trace.visible = 'legendonly'
+
+    fig.update_layout(
+        template="plotly_dark",
+        polar=dict(
+            radialaxis=dict(
+                visible=True,
+            )
+        ),
+        legend=dict(
+            title=dict(text='Videos'),
+            itemsizing='constant',
+            traceorder='normal'
+        )
+    )
+
+    fig.update_traces(marker=dict(size=6))
+
+    # Convert the plot to JSON and make sure the JSON is good for HTML embedding
+    polar_chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
+    polar_chart_json = polar_chart_json.replace("'", "&#39;")
+    polar_chart_json = Markup(polar_chart_json)
+
+    related_videos = df[df["title"].isin(titles[:-1])]
+    related_videos["cosine_similarity"] = [-1 for _ in range(len(related_videos))]
     for i, video in related_videos.iterrows():
         title = video["title"]
-        related_videos.loc[i, "cosine_similarity"] = round(
-            titles_scores_dict[title]*100, 2)
+        related_videos.at[i, "cosine_similarity"] = round(titles_scores_dict[title][0] * 100, 2)
 
-    sorted_related_videos = related_videos.sort_values(
-        by="cosine_similarity", ascending=False)
+    sorted_related_videos = related_videos.sort_values(by="cosine_similarity", ascending=False)
 
     # Get comments
     try:
@@ -272,18 +325,9 @@ def video():
         if comments[i]["sentiment"] < 0
     ], reverse=True, key=lambda comment: comment["comment_likes"])[:3]
 
-    # positive_comments = [
-    #     "Positive Comment 1 from YouTube...",
-    #     "Positive Comment 2 from YouTube...",
-    #     "Positive Comment 3 from YouTube...",
-    # ]
-    # negative_comments = [
-    #     "Negative Comment 1 from YouTube...",
-    #     "Negative Comment 2 from YouTube...",
-    #     "Negative Comment 3 from YouTube...",
-    # ]
-    return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos, positive_comments=positive_comments, negative_comments=negative_comments)
-
+    return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos,
+                           positive_comments=positive_comments, negative_comments=negative_comments,
+                           polar_chart_json=polar_chart_json)
 
 @ app.route("/example")
 def example():

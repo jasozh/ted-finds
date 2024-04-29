@@ -138,8 +138,8 @@ def get_categories(query, dc_matrix, names_to_idx):
     Gets categories
     """
     idx = names_to_idx[query]
-    x = np.argsort(dc_matrix[idx])[:10]
-    return np.argsort(dc_matrix[idx])[:10]
+    x = np.argsort(dc_matrix[idx])[:20]
+    return np.argsort(dc_matrix[idx])[:20]
 
 
 def get_top_k_talks(title, title_to_idx, idx_to_title, idx_to_sentiments, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, k=10):
