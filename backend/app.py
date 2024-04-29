@@ -107,6 +107,7 @@ def get_top_10_for_query(query):
     # matrix = np.load(p3)
     return bm.get_top_k_talks(query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, 10)
 
+
 def get_sentiment(title):
     p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
     p3 = os.path.join(current_directory, 'helpers/idx_to_sentiments')
@@ -125,7 +126,7 @@ def get_sentiment(title):
         return "Slightly Positive", sentiment
     else:
         return "Mostly Positive", sentiment
-    
+
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     """
@@ -192,7 +193,8 @@ def home():
         len_auto_complete = len(autocomplete)
         if (len_auto_complete < 5):
             num_edit_dist = 5 - len_auto_complete
-            autocomplete = autocomplete + simple_filter(search_query, num_edit_dist)
+            autocomplete = autocomplete + \
+                simple_filter(search_query, num_edit_dist)
     else:
         search_query = ""
         autocomplete = [(title, "") for title in titles[:5]]
@@ -231,8 +233,9 @@ def results():
     # Sort data by cosine_similarity in descending order
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
-    print(sorted_data.iloc[0]['category_scores'])
-    print(query_cat_scores)
+    # print(sorted_data.iloc[0]['category_scores'])
+    # print(query_cat_scores)
+    print(sorted_data.iloc[0])
 
     # data = [{
     #     'title': ['Presentation 1'],
@@ -248,7 +251,7 @@ def results():
     return render_template('results.html', title="Results", search_query=search_query, data=sorted_data, query_scores=query_cat_scores)
 
 
-@app.route("/video")
+@ app.route("/video")
 def video():
     video_id = int(request.args.get('w'))
     data = df[df["_id"] == video_id].iloc[0]
@@ -279,12 +282,13 @@ def video():
     # Convert the dictionary to a DataFrame
     df_polar = pd.DataFrame(polar_data)
     df_polar['videos'] = titles
-    df_polar = df_polar.melt(id_vars=['videos'], var_name='direction', value_name='frequency')
+    df_polar = df_polar.melt(
+        id_vars=['videos'], var_name='direction', value_name='frequency')
 
     # Generate the polar chart
     fig = px.line_polar(df_polar, r='frequency', theta='direction', color='videos', line_close=True,
                         color_discrete_sequence=px.colors.qualitative.D3)
-    
+
     MAX_LEGEND_LENGTH = 25  # Maximum character length for legend items
 
     for trace in fig.data:
@@ -323,12 +327,15 @@ def video():
     polar_chart_json = Markup(polar_chart_json)
 
     related_videos = df[df["title"].isin(titles[:-1])]
-    related_videos["cosine_similarity"] = [-1 for _ in range(len(related_videos))]
+    related_videos["cosine_similarity"] = [
+        -1 for _ in range(len(related_videos))]
     for i, video in related_videos.iterrows():
         title = video["title"]
-        related_videos.at[i, "cosine_similarity"] = round(titles_scores_dict[title][0] * 100, 2)
+        related_videos.at[i, "cosine_similarity"] = round(
+            titles_scores_dict[title][0] * 100, 2)
 
-    sorted_related_videos = related_videos.sort_values(by="cosine_similarity", ascending=False)
+    sorted_related_videos = related_videos.sort_values(
+        by="cosine_similarity", ascending=False)
 
     # Get comments
     try:
@@ -352,6 +359,7 @@ def video():
     return render_template('video.html', title="Video", data=data, related_videos=sorted_related_videos,
                            positive_comments=positive_comments, negative_comments=negative_comments,
                            polar_chart_json=polar_chart_json)
+
 
 @ app.route("/example")
 def example():

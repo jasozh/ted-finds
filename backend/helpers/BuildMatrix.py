@@ -103,6 +103,11 @@ def build_sim_matrix(documents, k=100):
 def get_top_k(title, title_to_idx, idx_to_sentiments, sim_matrix, k=10, sentiment_sim=0.1):
     """
     Gets the top k
+
+    Args:
+        sentiment_sim: the ratio between sentiment and cosine similarity for calculating
+        the combined scores. Ex: sentiment_sim=0.1 means that the combined score
+        is 90% from cosine similarity and 10% from sentiment.
     """
     idx = title_to_idx[title]
     query_sentiment = idx_to_sentiments[str(idx)]
