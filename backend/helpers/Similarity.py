@@ -22,6 +22,7 @@ def combined_jaccard_edit_distance(query, doc, jaccard_threshold=0.1):
         return edit_dist
     return float('inf')
 
+
 def simpler_jaccard(query, doc, jaccard_threshold=0.1):
     query_set = set(query.lower())
     doc_set = set(doc.lower())

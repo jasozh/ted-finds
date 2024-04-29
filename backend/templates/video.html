@@ -12,6 +12,7 @@
       href="https://fonts.googleapis.com/css2?family=Kanit&family=Montserrat&family=Open+Sans:wght@500&display=swap"
       rel="stylesheet"
     />
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   </head>
   <body>
     <div class="video-main-container">
@@ -28,6 +29,11 @@
       <h1 id="main-video-title">{{ data.title }}</h1>
       <p id="main-video-description">{{ data.summary }}</p>
     </div>
+
+    <div
+      id="polarChart"
+      style="width: 100%; height: 500px; margin-left: auto; margin-right: auto"
+    ></div>
 
     <div class="comments-container">
       <div class="comments-column" id="positive-comments-column">
@@ -79,5 +85,12 @@
         {% endfor %}
       </div>
     </div>
+
+    <script>
+      // NOTE: you MUST use single quotes or it will break. This is because
+      // the contents of polar_chart_json have double quotes that are not escaped.
+      var polarData = JSON.parse('{{ polar_chart_json }}');
+      Plotly.newPlot("polarChart", polarData);
+    </script>
   </body>
 </html>
