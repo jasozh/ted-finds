@@ -107,6 +107,25 @@ def get_top_10_for_query(query):
     # matrix = np.load(p3)
     return bm.get_top_k_talks(query, docname_to_idx, inv, idx_to_sentiments, sim_matrix, dc_matrix, idx_to_categories, categories_to_idx, 10)
 
+def get_sentiment(title):
+    p1 = os.path.join(current_directory, 'helpers/docname_to_idx')
+    p3 = os.path.join(current_directory, 'helpers/idx_to_sentiments')
+    with open(p1, 'r') as json_file:
+        docname_to_idx = json.load(json_file)
+    with open(p3, 'r') as json_file:
+        idx_to_sentiments = json.load(json_file)
+    sentiment = idx_to_sentiments.get(str(docname_to_idx[title]), 0.0)
+    if sentiment < -0.5:
+        return "Mostly Negative", sentiment
+    elif sentiment < -0.2:
+        return "Slightly Negative", sentiment
+    elif sentiment <= 0.2:
+        return "Neutral", sentiment
+    elif sentiment <= 0.5:
+        return "Slightly Positive", sentiment
+    else:
+        return "Mostly Positive", sentiment
+    
 
 def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     """
@@ -136,7 +155,7 @@ def autocomplete_filter(search_query: str) -> list[tuple[str, int]]:
     return result
 
 
-def simple_filter(search_query: str) -> list[tuple[str, int]]:
+def simple_filter(search_query: str, num_idx: int) -> list[tuple[str, int]]:
     """
     Filters the list of suggested titles based on edit distance
     """
@@ -150,11 +169,11 @@ def simple_filter(search_query: str) -> list[tuple[str, int]]:
     for i in range(n):
         d = titles.iloc[i].lower()
         sim_arr[i] = simpler_jaccard(q, d)
-    top_5_indices = np.argsort(sim_arr)[:5]
+    top_n_indices = np.argsort(sim_arr)[:num_idx]
 
     # Return as list
     result = [(titles.iloc[i], sim_arr[i])
-              for i in top_5_indices if sim_arr[i] != float('inf')]
+              for i in top_n_indices if sim_arr[i] != float('inf')]
 
     # Measure performance
     end_time = time.time()
@@ -170,8 +189,10 @@ def home():
     search_query = request.args.get("q")
     if search_query:
         autocomplete = autocomplete_filter(search_query)
-        if (len(autocomplete) < 5):
-            autocomplete = simple_filter(search_query)
+        len_auto_complete = len(autocomplete)
+        if (len_auto_complete < 5):
+            num_edit_dist = 5 - len_auto_complete
+            autocomplete = autocomplete + simple_filter(search_query, num_edit_dist)
     else:
         search_query = ""
         autocomplete = [(title, "") for title in titles[:5]]
@@ -188,11 +209,13 @@ def results():
     # print(len(titles))
     titles_scores_dict = dict(results)
     # print(titles_scores_dict)
+    titles_sentiment_dict = {title: get_sentiment(title) for title in titles}
 
     data = df[df["title"].isin(titles)]
 
     # Create new column
     data["cosine_similarity"] = [-1 for _ in range(len(data))]
+    data["sentiment"] = ["Neutral" for _ in range(len(data))]
     data["category_scores"] = [{}] * len(data)
     # print(titles_scores_dict)
     for i, video in data.iterrows():
@@ -201,6 +224,7 @@ def results():
             titles_scores_dict[title][0]*100, 2)
         # data.loc[i, "category_scores"] = titles_scores_dict[title][1]
         data.at[i, "category_scores"] = titles_scores_dict[title][1]
+        data.at[i, "sentiment"] = titles_sentiment_dict[title]
 
     # dictionary of the form {1597: -0.033, 3356: -0.0952, 5614: -0.3411, ... } is stored in titles_scores_dict[title][1]
 
