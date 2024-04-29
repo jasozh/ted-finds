@@ -87,7 +87,9 @@
     </div>
 
     <script>
-      var polarData = JSON.parse("{{ polar_chart_json }}");
+      // NOTE: you MUST use single quotes or it will break. This is because
+      // the contents of polar_chart_json have double quotes that are not escaped.
+      var polarData = JSON.parse('{{ polar_chart_json }}');
       Plotly.newPlot("polarChart", polarData);
     </script>
   </body>
