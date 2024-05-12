@@ -91,7 +91,7 @@ def build_sim_matrix(documents, k=100):
     # doc_category_scores = docs_compressed_normed.dot(words_compressed.T)
     doc_category_scores = docs_compressed
     # print(sim_matrix.shape, doc_category_scores.shape)
-    return sim_matrix, categories, doc_category_scores
+    return sim_matrix, categories, doc_category_scores, docs_compressed_normed, vectorizer, words_compressed
 
     # td_matrix_np = td_matrix.transpose().toarray()
     # td_matrix_np = normalize(td_matrix_np)
@@ -190,7 +190,7 @@ def prepare_data():
         idx_to_title[idx] = title
         title_to_idx[title] = idx
 
-    sim_matrix, categories, doc_category_scores = build_sim_matrix(
+    sim_matrix, categories, doc_category_scores, _, _, _ = build_sim_matrix(
         [transcript[1] for transcript in documents])
     sim_matrix = np.round(sim_matrix, 4)
 
@@ -262,3 +262,35 @@ def get_top_10_for_query(query):
     zipped = zip(top_k_talks, dc_scores)
 
     return zipped
+
+def get_closest_projects_to_query(query, k = 10):
+
+    with open('init.json', 'r') as json_file:
+        data = json.load(json_file)
+        talks = pd.json_normalize(data)
+        talks = talks[talks['transcript'] != '']
+
+    # Get transcripts in one place
+    documents = []
+    #idx_to_sentiments = {}
+    for idx, row in talks.iterrows():
+        #idx_to_sentiments[idx] = avg_sentiment(row['comments'])
+        documents.append((row['title'], row['transcript']))
+
+    idx_to_title = {}
+    title_to_idx = {}
+    for idx, (title, _) in enumerate(documents):
+        idx_to_title[idx] = title
+        title_to_idx[title] = idx
+
+    _, _, _, docs_compressed_normed, vectorizer, words_compressed = build_sim_matrix(
+        [transcript[1] for transcript in documents])
+    #sim_matrix = np.round(sim_matrix, 4)
+
+    query_tfidf = vectorizer.transform([query]).toarray()
+    query_vec_in = normalize(np.dot(query_tfidf, words_compressed)).squeeze()
+
+    sims = docs_compressed_normed.dot(query_vec_in)
+    asort = np.argsort(-sims)[:k+1]
+
+    return [(i, documents[i][0],sims[i]) for i in asort[1:]]
