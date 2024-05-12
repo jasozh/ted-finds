@@ -250,6 +250,19 @@ def results():
 
     return render_template('results.html', title="Results", search_query=search_query, data=sorted_data, query_scores=query_cat_scores)
 
+@app.route("/freeform-results")
+def freeform_results():
+
+    """
+    Returns top 10 ted talks for the query of the form
+    [(index, title, score), (index2, title2, score2), ...]
+    """
+
+    query = request.args.get('q')
+
+    top_10_projects = bm.get_closest_projects_to_query(query)
+
+    return render_template('template', top_10=top_10_projects)
 
 @ app.route("/video")
 def video():
