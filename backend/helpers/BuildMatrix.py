@@ -263,7 +263,8 @@ def get_top_10_for_query(query):
 
     return zipped
 
-def get_closest_projects_to_query(query, k = 10):
+
+def get_closest_projects_to_query(query, k=10):
 
     with open('init.json', 'r') as json_file:
         data = json.load(json_file)
@@ -272,9 +273,9 @@ def get_closest_projects_to_query(query, k = 10):
 
     # Get transcripts in one place
     documents = []
-    #idx_to_sentiments = {}
+    # idx_to_sentiments = {}
     for idx, row in talks.iterrows():
-        #idx_to_sentiments[idx] = avg_sentiment(row['comments'])
+        # idx_to_sentiments[idx] = avg_sentiment(row['comments'])
         documents.append((row['title'], row['transcript']))
 
     idx_to_title = {}
@@ -285,7 +286,7 @@ def get_closest_projects_to_query(query, k = 10):
 
     _, _, _, docs_compressed_normed, vectorizer, words_compressed = build_sim_matrix(
         [transcript[1] for transcript in documents])
-    #sim_matrix = np.round(sim_matrix, 4)
+    # sim_matrix = np.round(sim_matrix, 4)
 
     query_tfidf = vectorizer.transform([query]).toarray()
     query_vec_in = normalize(np.dot(query_tfidf, words_compressed)).squeeze()
@@ -293,4 +294,4 @@ def get_closest_projects_to_query(query, k = 10):
     sims = docs_compressed_normed.dot(query_vec_in)
     asort = np.argsort(-sims)[:k+1]
 
-    return [(i, documents[i][0],sims[i]) for i in asort[1:]]
+    return [(i, documents[i][0], sims[i]) for i in asort[1:]]
