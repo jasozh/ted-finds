@@ -262,7 +262,7 @@ def freeform_results():
 
     top_10_projects = bm.get_closest_projects_to_query(query)
 
-    return render_template('template', top_10=top_10_projects)
+    return render_template('freeform.html', top_10=top_10_projects)
 
 @ app.route("/video")
 def video():
