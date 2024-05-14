@@ -266,7 +266,6 @@ def get_top_10_for_query(query):
 
 
 def get_closest_projects_to_query(query, k=10):
-
     print(os.getcwd())
     with open('backend/init.json', 'r') as json_file:
         data = json.load(json_file)

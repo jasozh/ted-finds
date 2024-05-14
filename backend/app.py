@@ -234,7 +234,7 @@ def results():
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
     # print(sorted_data.iloc[0]['category_scores'])
-    #print(query_cat_scores)
+    # print(query_cat_scores)
     print(sorted_data.iloc[0])
 
     # data = [{
