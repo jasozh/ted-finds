@@ -324,6 +324,8 @@ def video():
     # Generate the polar chart
     fig = px.line_polar(df_polar, r='frequency', theta='direction', color='videos', line_close=True,
                         color_discrete_sequence=px.colors.qualitative.D3)
+    
+    # clamp the comments, you're welcome my underclassmen
 
     MAX_LEGEND_LENGTH = 25  # Maximum character length for legend items
 
@@ -359,7 +361,11 @@ def video():
 
     # Convert the plot to JSON and make sure the JSON is good for HTML embedding
     polar_chart_json = json.dumps(fig, cls=plotly.utils.PlotlyJSONEncoder)
-    polar_chart_json = polar_chart_json.replace("'", "&#39;")
+
+    # Replace single quotes and escape other problematic characters
+    polar_chart_json = polar_chart_json.replace("'", "&#39;").replace("\\", "\\\\").replace('"', '\\"')
+
+    # Mark the JSON as safe for embedding in HTML
     polar_chart_json = Markup(polar_chart_json)
 
     related_videos = df[df["title"].isin(titles[:-1])]
