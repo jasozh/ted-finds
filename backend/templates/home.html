@@ -21,12 +21,20 @@
       input.setSelectionRange(input.value.length, input.value.length);
     };
 
-    /** The value of the search query */
+    /** The value of the search query for the title */
     var searchQuery = "{{ query }}";
 
-    /** Handles typing into the search bar */
+    /** The value of the search query for the content */
+    var searchQueryContent = "";
+
+    /** Handles typing into the search bar for title */
     const handleChange = () => {
       searchQuery = document.getElementById("search").value;
+    };
+
+    /** Handles typing into the search bar */
+    const handleChangeContent = () => {
+      searchQueryContent = document.getElementById("searchContent").value;
     };
 
     /** Handles clicking on a search autocomplete option */
@@ -34,10 +42,45 @@
       window.location.href = `/results?q=${talk_title}`;
     };
 
-    /** Handles submitting a search */
-    const onSubmit = () => {
+    /** Handles clicking on "Search by title" */
+    const onSearchTitleClick = () => {
+      // Change nav button
+      var searchByTitleButton = document.getElementById("search_by_title")
+      var searchByContentButton = document.getElementById("search_by_content")
+      searchByTitleButton.classList.add("bottom-active")
+      searchByContentButton.classList.remove("bottom-active")
+
+      // Change form display
+      var searchByTitleForm = document.getElementById("search_by_title_form")
+      var searchByContentForm = document.getElementById("search_by_content_form")
+      searchByTitleForm.classList.remove("hidden")
+      searchByContentForm.classList.add("hidden")
+    }
+
+    /** Handles clicking on "Search by title" */
+    const onSearchContentClick = () => {
+      var searchByTitleButton = document.getElementById("search_by_title")
+      var searchByContentButton = document.getElementById("search_by_content")
+      searchByTitleButton.classList.remove("bottom-active")
+      searchByContentButton.classList.add("bottom-active")
+
+      // Change form display
+      var searchByTitleForm = document.getElementById("search_by_title_form")
+      var searchByContentForm = document.getElementById("search_by_content_form")
+      searchByTitleForm.classList.add("hidden")
+      searchByContentForm.classList.remove("hidden")
+    }
+
+    /** Handles submitting a search with TED Talk title */
+    const onSubmitTitle = () => {
       event.preventDefault();
       window.location.href = `search?q=${escape(searchQuery)}`;
+    };
+
+    /** Handles submitting a search with any query */
+    const onSubmitContent = () => {
+      event.preventDefault();
+      window.location.href = `freeform_results?q=${escape(searchQueryContent)}`;
     };
   </script>
   <div style="display: flex; height: 100vh">
@@ -57,7 +100,9 @@
       <!-- <h1 style="padding: 0; padding-bottom: 1rem; margin: 0; font-size: 4rem">
         TED Finds
       </h1> -->
-      <form onsubmit="onSubmit()">
+
+      <!-- SEARCH BY TITLE; DEFAULT OPTION -->
+      <form onsubmit="onSubmitTitle()" id="search_by_title_form">
         <div
           style="
             margin-bottom: 18rem;
@@ -68,7 +113,7 @@
         >
           <input
             autocomplete="off"
-            placeholder="Search for a TED Talk"
+            placeholder="Search with a TED Talk title"
             id="search"
             oninput="handleChange()"
             value="{{ query }}"
@@ -121,6 +166,58 @@
           </div>
         </div>
       </form>
+
+      <!-- SEARCH BY CONTENT; DEFAULT IS HIDDEN -->
+      <form onsubmit="onSubmitContent()" id="search_by_content_form" class="hidden">
+        <div
+          style="
+            margin-bottom: 3rem;
+            position: relative;
+            display: flex;
+            min-width: 40rem;
+          "
+        >
+          <input
+            autocomplete="off"
+            placeholder="Search with any query"
+            id="searchContent"
+            oninput="handleChangeContent()"
+            value="{{ query }}"
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              color: rgb(243 244 246);
+              font-size: 1.2rem;
+              width: 100%;
+              padding-left: 1.5rem;
+              padding-right: 1.5rem;
+              padding-top: 1rem;
+              padding-bottom: 1rem;
+              border: 0;
+              border-radius: 5rem 0 0 5rem;
+            "
+          />
+          <button
+            style="
+              background: rgba(255, 255, 255, 0.1);
+              color: rgb(243 244 246);
+              cursor: pointer;
+              border-radius: 0 5rem 5rem 0;
+              width: 4rem;
+              border: 0;
+            "
+            type="submit"
+          >
+            <i style="font-size: 1.2rem" class="fa fa-search">&nbsp;</i>
+          </button>
+        </div>
+      </form>
+
+      <!-- Switch between freeform and title search -->
+      <div>
+        <!-- Default is search by title -->
+        <button id="search_by_title" class="bottom bottom-active" onclick="onSearchTitleClick()">Search by title</button>
+        <button id="search_by_content" class="bottom" onclick="onSearchContentClick()">Search by content</button>
+      </div>
     </div>
   </div>
 </body>
