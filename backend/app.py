@@ -234,7 +234,7 @@ def results():
     sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
 
     # print(sorted_data.iloc[0]['category_scores'])
-    # print(query_cat_scores)
+    #print(query_cat_scores)
     print(sorted_data.iloc[0])
 
     # data = [{
@@ -251,18 +251,40 @@ def results():
     return render_template('results.html', title="Results", search_query=search_query, data=sorted_data, query_scores=query_cat_scores)
 
 
-@app.route("/freeform-results")
+@app.route("/freeform_results")
 def freeform_results():
     """
     Returns top 10 ted talks for the query of the form
-    [(index, title, score), (index2, title2, score2), ...]
+    [(title, score), (title2, score2), ...]
     """
 
     query = request.args.get('q')
 
-    top_10_projects = bm.get_closest_projects_to_query(query)
+    results = bm.get_closest_projects_to_query(query)
 
-    return render_template('freeform.html', top_10=top_10_projects)
+    titles = [result[0] for result in results]
+
+    # Create new column
+    data = df[df["title"].isin(titles)]
+
+    titles_sentiment_dict = {title: get_sentiment(title) for title in titles}
+    titles_scores_dict = dict(results)
+
+    data["cosine_similarity"] = [-1 for _ in range(len(data))]
+    data["sentiment"] = ["Neutral" for _ in range(len(data))]
+    data["category_scores"] = [{}] * len(data)
+    # print(titles_scores_dict)
+    for i, video in data.iterrows():
+        title = video["title"]
+        data.at[i, "cosine_similarity"] = round(
+            titles_scores_dict[title]*100, 2)
+        # data.loc[i, "category_scores"] = titles_scores_dict[title][1]
+        data.at[i, "category_scores"] = {}
+        data.at[i, "sentiment"] = titles_sentiment_dict[title]
+
+    sorted_data = data.sort_values(by="cosine_similarity", ascending=False)
+
+    return render_template('results.html', title="Freeform Results", search_query=query, data=sorted_data, query_scores={})
 
 
 @ app.route("/video")

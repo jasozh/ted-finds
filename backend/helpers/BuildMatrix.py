@@ -5,6 +5,7 @@ from sklearn.preprocessing import normalize
 from scipy.sparse.linalg import svds
 from sklearn.feature_extraction.text import TfidfVectorizer
 from helpers.Similarity import avg_sentiment, sentiment_similarity
+import os
 
 # Build Sim Matrix using SVD
 
@@ -266,7 +267,8 @@ def get_top_10_for_query(query):
 
 def get_closest_projects_to_query(query, k=10):
 
-    with open('init.json', 'r') as json_file:
+    print(os.getcwd())
+    with open('backend/init.json', 'r') as json_file:
         data = json.load(json_file)
         talks = pd.json_normalize(data)
         talks = talks[talks['transcript'] != '']
@@ -294,4 +296,4 @@ def get_closest_projects_to_query(query, k=10):
     sims = docs_compressed_normed.dot(query_vec_in)
     asort = np.argsort(-sims)[:k+1]
 
-    return [(i, documents[i][0], sims[i]) for i in asort[1:]]
+    return [(documents[i][0], sims[i]) for i in asort[1:]]
